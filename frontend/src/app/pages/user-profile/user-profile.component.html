@@ -11,6 +11,17 @@
     >
       <mat-icon class="material-symbols-outlined" aria-hidden="true">arrow_back</mat-icon>
     </button>
+
+    <button
+      class="logout-button"
+      mat-flat-button
+      type="button"
+      aria-label="Se deconnecter"
+      (click)="logout()"
+    >
+      <mat-icon class="material-symbols-outlined" aria-hidden="true">logout</mat-icon>
+      Deconnexion
+    </button>
   </div>
 
   @if (isLoading()) {

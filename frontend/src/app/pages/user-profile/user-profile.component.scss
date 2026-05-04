@@ -8,9 +8,18 @@
   position: absolute;
   top: 1rem;
   left: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.logout-button {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
@@ -85,6 +94,12 @@
 }
 
 @media (max-width: 760px) {
+  .back-nav {
+    right: 1rem;
+    left: 1rem;
+    justify-content: space-between;
+  }
+
   .profile-content {
     grid-template-columns: 1fr;
   }
