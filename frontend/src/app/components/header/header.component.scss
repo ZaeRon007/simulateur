@@ -1,14 +1,23 @@
 .header-toolbar {
+  position: relative;
   background: #14213d;
   color: #ffffff;
 }
 
 .header-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   font-size: 1.15rem;
   font-weight: 700;
   letter-spacing: 0.02em;
+  text-align: center;
 }
 
 .toolbar-spacer {
   flex: 1;
+}
+
+.header-toolbar a[mat-stroked-button] {
+  color: #ffffff;
 }
