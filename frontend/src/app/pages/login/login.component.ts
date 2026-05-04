@@ -53,7 +53,7 @@ export class LoginComponent {
       .subscribe({
         next: () => {
           this.isSubmitting.set(false);
-          void this.router.navigate(['/profile']);
+          void this.router.navigate(['/game']);
         },
         error: () => {
           this.errorMessage.set('nom ou mot de passe incorrect');

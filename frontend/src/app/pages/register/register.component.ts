@@ -55,7 +55,7 @@ export class RegisterComponent {
       .subscribe({
         next: () => {
           this.isSubmitting.set(false);
-          void this.router.navigate(['/profile']);
+          void this.router.navigate(['/game']);
         },
         error: (error: unknown) => {
           this.errorMessage.set(this.resolveErrorMessage(error));
