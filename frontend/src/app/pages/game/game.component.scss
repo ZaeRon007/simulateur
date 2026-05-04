@@ -1,0 +1,11 @@
+.game-layout {
+  min-height: calc(100dvh - 64px);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+mat-card {
+  width: min(720px, 100%);
+  padding: 1.5rem;
+}

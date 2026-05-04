@@ -1,0 +1,14 @@
+.landing-layout {
+  min-height: calc(100dvh - 64px);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.welcome-card {
+  width: min(680px, 100%);
+  text-align: center;
+  padding: 2rem;
+  font-size: clamp(1.15rem, 3vw, 1.8rem);
+  font-weight: 600;
+}

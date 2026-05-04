@@ -1,0 +1,11 @@
+<mat-toolbar class="header-toolbar">
+  <span class="header-title">Too dangerous 4 you</span>
+
+  <span class="toolbar-spacer" aria-hidden="true"></span>
+
+  @if (showProfileButton()) {
+    <a mat-stroked-button routerLink="/profile" aria-label="Aller au profil utilisateur">
+      Profil utilisateur
+    </a>
+  }
+</mat-toolbar>

@@ -1,0 +1,46 @@
+<app-header></app-header>
+
+<main class="profile-layout">
+  @if (isLoading()) {
+    <div class="state-block" aria-live="polite">
+      <mat-spinner diameter="48"></mat-spinner>
+    </div>
+  } @else if (errorMessage()) {
+    <mat-card class="state-block" appearance="outlined">
+      <p>{{ errorMessage() }}</p>
+    </mat-card>
+  } @else if (profile(); as currentProfile) {
+    <section class="profile-content">
+      <mat-card class="identity-card" appearance="raised">
+        <img class="avatar" [src]="avatarUrl()" alt="Image du profil utilisateur" />
+        <div>
+          <h1>{{ currentProfile.name }}</h1>
+          <p>{{ currentProfile.email }}</p>
+        </div>
+      </mat-card>
+
+      <mat-card class="best-score-card" appearance="raised" aria-label="Meilleur score utilisateur">
+        <p class="best-score-label">Best score</p>
+        <p class="best-score-value">{{ currentProfile.bestScore }}</p>
+      </mat-card>
+
+      <mat-card class="scores-card" appearance="outlined">
+        <h2>Liste des scores</h2>
+        <table mat-table [dataSource]="scoreRows()" class="scores-table">
+          <ng-container matColumnDef="label">
+            <th mat-header-cell *matHeaderCellDef>Type</th>
+            <td mat-cell *matCellDef="let element">{{ element.label }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="value">
+            <th mat-header-cell *matHeaderCellDef>Valeur</th>
+            <td mat-cell *matCellDef="let element">{{ element.value }}</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+      </mat-card>
+    </section>
+  }
+</main>
