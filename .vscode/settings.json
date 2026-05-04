@@ -1,0 +1,7 @@
+{
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "files.exclude": {
+        "frontend/node_modules/": true,
+        "backend/.mvn/": true,
+    }
+}
