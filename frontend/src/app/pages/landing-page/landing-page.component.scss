@@ -11,4 +11,11 @@
   padding: 2rem;
   font-size: clamp(1.15rem, 3vw, 1.8rem);
   font-weight: 600;
+  display: grid;
+  gap: 1.25rem;
+  justify-items: center;
+}
+
+.welcome-card a {
+  min-width: 220px;
 }

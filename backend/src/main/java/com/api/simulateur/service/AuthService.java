@@ -41,13 +41,20 @@ public class AuthService {
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
-        if (userRepository.existsByEmail(request.email())) {
+        String normalizedEmail = request.email().trim().toLowerCase();
+        String normalizedName = request.name().trim();
+
+        if (userRepository.existsByEmailIgnoreCase(normalizedEmail)) {
             throw new BadRequestException("Cet email est deja utilise");
         }
 
+        if (userRepository.existsByNameIgnoreCase(normalizedName)) {
+            throw new BadRequestException("Ce nom d'utilisateur est deja utilise");
+        }
+
         User user = new User();
-        user.setName(request.name());
-        user.setEmail(request.email().toLowerCase());
+        user.setName(normalizedName);
+        user.setEmail(normalizedEmail);
         user.setPassword(passwordEncoder.encode(request.password()));
         User savedUser = userRepository.save(user);
 
@@ -62,16 +69,18 @@ public class AuthService {
     }
 
     public AuthResponse login(LoginRequest request) {
+        String identifier = request.identifier().trim().toLowerCase();
+
         try {
             authenticationManager.authenticate(
-                UsernamePasswordAuthenticationToken.unauthenticated(request.email().toLowerCase(), request.password())
+                UsernamePasswordAuthenticationToken.unauthenticated(identifier, request.password())
             );
         } catch (BadCredentialsException ex) {
-            throw new BadRequestException("Email ou mot de passe invalide");
+            throw new BadRequestException("Nom ou mot de passe incorrect");
         }
 
-        User user = userRepository.findByEmail(request.email().toLowerCase())
-            .orElseThrow(() -> new BadRequestException("Email ou mot de passe invalide"));
+        User user = userRepository.findByEmailIgnoreCaseOrNameIgnoreCase(identifier, identifier)
+            .orElseThrow(() -> new BadRequestException("Nom ou mot de passe incorrect"));
 
         String token = jwtTokenService.generateToken(user.getId(), user.getEmail(), user.getName());
         return new AuthResponse(token, "Bearer", jwtTokenService.getExpirationSeconds());

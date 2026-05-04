@@ -19,7 +19,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) {
-        User user = userRepository.findByEmail(username)
+        String identifier = username.trim().toLowerCase();
+
+        User user = userRepository.findByEmailIgnoreCaseOrNameIgnoreCase(identifier, identifier)
             .orElseThrow(() -> new UsernameNotFoundException("Utilisateur introuvable"));
 
         return org.springframework.security.core.userdetails.User.withUsername(user.getEmail())

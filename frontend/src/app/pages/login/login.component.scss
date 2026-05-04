@@ -1,0 +1,34 @@
+.auth-form-layout {
+  min-height: calc(100dvh - 64px);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.auth-form-card {
+  width: min(560px, 100%);
+  padding: 2rem;
+}
+
+.auth-form-card h1 {
+  margin: 0 0 1.25rem;
+}
+
+form {
+  display: grid;
+  gap: 1rem;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.form-error {
+  margin: 0;
+  color: #b00020;
+  font-weight: 600;
+}
+
+button[type='submit'] {
+  justify-self: start;
+}

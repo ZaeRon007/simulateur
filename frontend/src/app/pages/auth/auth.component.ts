@@ -5,10 +5,10 @@ import { RouterLink } from '@angular/router';
 import { HeaderComponent } from '../../components/header/header.component';
 
 @Component({
-  selector: 'app-landing-page',
+  selector: 'app-auth',
   imports: [HeaderComponent, MatCardModule, MatButtonModule, RouterLink],
-  templateUrl: './landing-page.component.html',
-  styleUrl: './landing-page.component.scss',
+  templateUrl: './auth.component.html',
+  styleUrl: './auth.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class LandingPageComponent {}
+export class AuthComponent {}

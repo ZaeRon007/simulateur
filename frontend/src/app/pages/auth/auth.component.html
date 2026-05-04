@@ -1,0 +1,17 @@
+<app-header [showProfileButton]="false"></app-header>
+
+<main class="auth-page-layout">
+  <mat-card class="auth-card" appearance="raised">
+    <h1>Authentifier vous</h1>
+
+    <div class="auth-actions">
+      <a mat-flat-button color="primary" routerLink="/login" aria-label="Aller vers la page se connecter">
+        Se connecter
+      </a>
+
+      <a mat-stroked-button routerLink="/register" aria-label="Aller vers la page s'enregistrer">
+        S'enregistrer
+      </a>
+    </div>
+  </mat-card>
+</main>
