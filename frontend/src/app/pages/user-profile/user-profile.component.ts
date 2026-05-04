@@ -1,6 +1,8 @@
+import { Location } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { HeaderComponent } from '../../components/header/header.component';
@@ -9,12 +11,13 @@ import { ScoreRow, UserProfile } from '../../core/models';
 
 @Component({
   selector: 'app-user-profile',
-  imports: [HeaderComponent, MatCardModule, MatProgressSpinnerModule, MatTableModule],
+  imports: [HeaderComponent, MatCardModule, MatButtonModule, MatProgressSpinnerModule, MatTableModule],
   templateUrl: './user-profile.component.html',
   styleUrl: './user-profile.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UserProfileComponent {
+  private readonly location = inject(Location);
   private readonly profileService = inject(ProfileService);
 
   readonly isLoading = signal(true);
@@ -39,6 +42,10 @@ export class UserProfileComponent {
     const seed = encodeURIComponent(currentProfile?.name ?? 'Player');
     return `https://api.dicebear.com/9.x/initials/svg?seed=${seed}`;
   });
+
+  goBack(): void {
+    this.location.back();
+  }
 
   constructor() {
     this.loadProfile();

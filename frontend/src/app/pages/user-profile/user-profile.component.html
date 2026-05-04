@@ -1,6 +1,19 @@
 <app-header></app-header>
 
 <main class="profile-layout">
+  <div class="back-nav">
+    <button
+      class="back-button"
+      mat-stroked-button
+      type="button"
+      aria-label="Revenir a la page precedente"
+      (click)="goBack()"
+    >
+      <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+      Retour
+    </button>
+  </div>
+
   @if (isLoading()) {
     <div class="state-block" aria-live="polite">
       <mat-spinner diameter="48"></mat-spinner>

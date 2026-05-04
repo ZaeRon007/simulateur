@@ -1,6 +1,24 @@
 .profile-layout {
+  position: relative;
   min-height: calc(100dvh - 64px);
-  padding: 1rem;
+  padding: 4rem 1rem 1rem;
+}
+
+.back-nav {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.material-symbols-outlined {
+  font-size: 1.1rem;
+  line-height: 1;
 }
 
 .state-block {
