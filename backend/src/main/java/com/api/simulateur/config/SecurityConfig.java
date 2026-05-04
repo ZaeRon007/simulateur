@@ -42,7 +42,7 @@ public class SecurityConfig {
     private final String allowedOriginsProperty;
 
     public SecurityConfig(
-        @Value("${security.jwt.secret}") String jwtSecret,
+        @Value("${security.jwt.secret-key}") String jwtSecret,
         @Value("${app.cors.allowed-origins}") String allowedOriginsProperty
     ) {
         this.jwtSecret = jwtSecret;
