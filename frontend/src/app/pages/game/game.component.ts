@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { HeaderComponent } from '../../components/header/header.component';
 import { PhoneComponent } from '../../components/phone/phone.component';
 import { RoadComponent } from '../../components/road/road.component';
@@ -10,4 +10,10 @@ import { RoadComponent } from '../../components/road/road.component';
   styleUrl: './game.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class GameComponent {}
+export class GameComponent {
+  protected readonly isStarted = signal(false);
+
+  protected startGame(): void {
+    this.isStarted.set(true);
+  }
+}

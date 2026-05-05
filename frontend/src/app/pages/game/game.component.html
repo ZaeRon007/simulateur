@@ -3,11 +3,49 @@
 
   <main class="game-layout">
     <div class="column column-left">
-      <!-- Colonne gauche: vide -->
+      <div class="controls-container">
+        <h2 class="controls-title">Touches</h2>
+        
+        <div class="controls-diagram" aria-label="Touches directionnelles">
+          <div class="keys-illustration" aria-hidden="true">
+            <div class="key key-up">↑</div>
+            <div class="key-row">
+              <div class="key">←</div>
+              <div class="key key-down">↓</div>
+              <div class="key">→</div>
+            </div>
+          </div>
+
+          <svg class="controls-annotations" viewBox="0 0 420 320" aria-hidden="true">
+            <polyline class="annotation-line" points="255,60 290,25 320,25"></polyline>
+            <polyline class="annotation-line" points="255,260 290,310 320,310"></polyline>
+          </svg>
+
+          <span class="annotation-label annotation-label-top">avancer</span>
+          <span class="annotation-label annotation-label-bottom">freiner</span>
+        </div>
+        
+        <div class="todo-section">
+          <h3 class="todo-title">TODO :</h3>
+          <p class="todo-text">N'oubliez pas de répondre à votre famille au volant, la famille avant TOUT</p>
+        </div>
+      </div>
     </div>
 
     <div class="column column-center">
-      <app-road></app-road>
+      @if (!isStarted()) {
+        <div class="start-overlay">
+          <button
+            type="button"
+            class="start-button"
+            aria-label="Demarrer la partie"
+            (click)="startGame()"
+          >
+            START
+          </button>
+        </div>
+      }
+      <app-road [running]="isStarted()"></app-road>
     </div>
 
     <div class="column column-right">
