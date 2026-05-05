@@ -45,11 +45,11 @@
           </button>
         </div>
       }
-      <app-road [running]="isStarted()"></app-road>
+      <app-road [running]="isStarted()" (distanceMeters)="distanceMeters.set($event)"></app-road>
     </div>
 
     <div class="column column-right">
-      <app-phone></app-phone>
+      <app-phone [distanceMeters]="distanceMeters()"></app-phone>
     </div>
   </main>
 </section>

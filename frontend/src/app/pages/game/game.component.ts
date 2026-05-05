@@ -12,6 +12,7 @@ import { RoadComponent } from '../../components/road/road.component';
 })
 export class GameComponent {
   protected readonly isStarted = signal(false);
+  protected readonly distanceMeters = signal(0);
 
   protected startGame(): void {
     this.isStarted.set(true);
