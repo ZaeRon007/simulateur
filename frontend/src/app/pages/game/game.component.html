@@ -1,8 +1,29 @@
-<app-header></app-header>
+<section class="game-page">
+  <app-header></app-header>
 
-<main class="game-layout">
-  <mat-card appearance="outlined">
-    <h1>Game</h1>
-    <p>Le composant game est pret et reste volontairement minimal.</p>
-  </mat-card>
-</main>
+  <main class="game-layout">
+    <div class="column column-left">
+      <!-- Colonne gauche: vide -->
+    </div>
+
+    <div class="column column-center">
+      <div class="road" aria-label="Route de jeu simplifiée en noir et blanc">
+        <div class="road-center-line" aria-hidden="true"></div>
+
+        <div class="car" aria-hidden="true">
+          <div class="car-window"></div>
+          <div class="car-light car-light-left"></div>
+          <div class="car-light car-light-right"></div>
+          <div class="car-wheel car-wheel-front-left"></div>
+          <div class="car-wheel car-wheel-front-right"></div>
+          <div class="car-wheel car-wheel-rear-left"></div>
+          <div class="car-wheel car-wheel-rear-right"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="column column-right">
+      <app-phone></app-phone>
+    </div>
+  </main>
+</section>
