@@ -1,0 +1,123 @@
+:host {
+  width: min(100%, 360px);
+  height: 100%;
+  display: block;
+}
+
+.road {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 0.5rem;
+  background: #fff;
+  overflow: hidden;
+}
+
+.road::before,
+.road::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #111;
+}
+
+.road::before {
+  left: 1.25rem;
+}
+
+.road::after {
+  right: 1.25rem;
+}
+
+.road-center-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 4px;
+  transform: translateX(-50%);
+  background: repeating-linear-gradient(
+    to bottom,
+    #111 0,
+    #111 18px,
+    transparent 18px,
+    transparent 34px
+  );
+}
+
+.car {
+  position: absolute;
+  left: 25%;
+  bottom: 1rem;
+  transform: translateX(-50%) scaleY(-1);
+  width: 54px;
+  height: 96px;
+  border: 2px solid #111;
+  border-radius: 18px;
+  background: #f4f4f4;
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.35);
+}
+
+.car-window {
+  position: absolute;
+  left: 9px;
+  top: 12px;
+  width: 32px;
+  height: 34px;
+  border: 2px solid #111;
+  border-radius: 8px;
+  background: #d9d9d9;
+}
+
+.car-light {
+  position: absolute;
+  bottom: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #111;
+}
+
+.car-light-left {
+  left: 8px;
+}
+
+.car-light-right {
+  right: 8px;
+}
+
+.car-wheel {
+  position: absolute;
+  width: 6px;
+  height: 18px;
+  border-radius: 4px;
+  background: #111;
+}
+
+.car-wheel-front-left {
+  left: -5px;
+  top: 14px;
+}
+
+.car-wheel-front-right {
+  right: -5px;
+  top: 14px;
+}
+
+.car-wheel-rear-left {
+  left: -5px;
+  bottom: 16px;
+}
+
+.car-wheel-rear-right {
+  right: -5px;
+  bottom: 16px;
+}
+
+@media (max-width: 1024px) {
+  :host {
+    width: min(100%, 260px);
+  }
+}

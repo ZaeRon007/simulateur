@@ -4,7 +4,6 @@
         "frontend/node_modules/": true,
         "frontend/.angular/": true,
         "frontend/dist/": true,
-        "frontend/public/": true,
         "backend/.mvn/": true,
     }
 }
