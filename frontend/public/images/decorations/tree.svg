@@ -1,0 +1,8 @@
+<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Trunk -->
+  <rect x="40" y="70" width="20" height="40" fill="#8B4513"/>
+  <!-- Canopy -->
+  <circle cx="50" cy="50" r="35" fill="#2D8659"/>
+  <circle cx="30" cy="45" r="25" fill="#2D8659"/>
+  <circle cx="70" cy="45" r="25" fill="#2D8659"/>
+</svg>
