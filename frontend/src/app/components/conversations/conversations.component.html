@@ -1,0 +1,36 @@
+<section class="conversations" aria-label="Liste de conversations">
+  <div class="status-bar" aria-hidden="true">
+    <span class="status-time">4:26</span>
+    <div class="status-icons">
+      <span class="status-signal"></span>
+      <span class="status-wifi"></span>
+      <span class="status-battery"></span>
+    </div>
+  </div>
+
+  <header class="conversations-header">
+    <h2 class="title">Messages</h2>
+
+    <div class="header-actions">
+      <button type="button" class="icon-button" aria-label="Rechercher dans les conversations">
+        <span class="search-icon" aria-hidden="true"></span>
+      </button>
+
+      <button type="button" class="avatar-button" aria-label="Profil utilisateur">
+        <span class="avatar-placeholder" aria-hidden="true">U</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="conversation-list" role="list" aria-label="Conversations">
+    <p class="empty-state" role="status">Aucune conversation</p>
+  </div>
+
+  <div class="system-nav">
+    <span class="nav-recent" aria-hidden="true"></span>
+    <span class="nav-home" aria-hidden="true"></span>
+    <button type="button" class="nav-back" aria-label="Retour" (click)="onBackClick()"></button>
+  </div>
+
+  <div class="gesture-bar" aria-hidden="true"></div>
+</section>

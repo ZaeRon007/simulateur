@@ -1,6 +1,7 @@
 import { NgOptimizedImage } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input, signal } from '@angular/core';
 import { MatBadgeModule } from '@angular/material/badge';
+import { ConversationsComponent } from '../conversations/conversations.component';
 
 type AppIcon = {
   readonly label: string;
@@ -10,7 +11,7 @@ type AppIcon = {
 
 @Component({
   selector: 'app-phone',
-  imports: [NgOptimizedImage, MatBadgeModule],
+  imports: [NgOptimizedImage, MatBadgeModule, ConversationsComponent],
   templateUrl: './phone.component.html',
   styleUrl: './phone.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -18,7 +19,7 @@ type AppIcon = {
 export class PhoneComponent {
   readonly phoneBadgeCount = input(0);
   readonly smsBadgeCount = input(0);
-  protected readonly smsMenuOpen = signal(false);
+  protected readonly conversationsOpen = signal(false);
 
   protected readonly primaryApps: readonly AppIcon[] = [
     {
@@ -71,11 +72,11 @@ export class PhoneComponent {
   protected readonly internetIcon = this.dockApps[2];
   protected readonly cameraIcon = this.dockApps[3];
 
-  protected toggleSmsMenu(): void {
-    this.smsMenuOpen.update((open) => !open);
+  protected openConversations(): void {
+    this.conversationsOpen.set(true);
   }
 
-  protected closeSmsMenu(): void {
-    this.smsMenuOpen.set(false);
+  protected closeConversations(): void {
+    this.conversationsOpen.set(false);
   }
 }
