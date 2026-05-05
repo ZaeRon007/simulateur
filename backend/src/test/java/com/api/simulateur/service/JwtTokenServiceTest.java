@@ -1,5 +1,6 @@
 package com.api.simulateur.service;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 
@@ -17,9 +18,25 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 class JwtTokenServiceTest {
 
     @Test
+    void integerExpirationValueIsInterpretedAsDays() {
+        JwtEncoder jwtEncoder = mock(JwtEncoder.class);
+        JwtTokenService jwtTokenService = new JwtTokenService(jwtEncoder, "1");
+
+        assertEquals(86_400L, jwtTokenService.getExpirationSeconds());
+    }
+
+    @Test
+    void explicitHourExpirationValueIsSupported() {
+        JwtEncoder jwtEncoder = mock(JwtEncoder.class);
+        JwtTokenService jwtTokenService = new JwtTokenService(jwtEncoder, "24h");
+
+        assertEquals(86_400L, jwtTokenService.getExpirationSeconds());
+    }
+
+    @Test
     void generateTokenUsesHs256HeaderAndReturnsEncodedValue() {
         JwtEncoder jwtEncoder = mock(JwtEncoder.class);
-        JwtTokenService jwtTokenService = new JwtTokenService(jwtEncoder, 3600L);
+        JwtTokenService jwtTokenService = new JwtTokenService(jwtEncoder, "1h");
 
         Instant now = Instant.now();
         Jwt jwt = new Jwt(
@@ -39,6 +56,13 @@ class JwtTokenServiceTest {
         assertNotNull(capturedParameters);
         assertEquals(MacAlgorithm.HS256.getName(), capturedParameters.getJwsHeader().getAlgorithm().getName());
         assertEquals("test@example.com", capturedParameters.getClaims().getSubject());
+        assertEquals(
+            3600L,
+            Duration.between(
+                capturedParameters.getClaims().getIssuedAt(),
+                capturedParameters.getClaims().getExpiresAt()
+            ).getSeconds()
+        );
         assertEquals("encoded-token", token);
     }
 }
