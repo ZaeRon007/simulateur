@@ -24,22 +24,22 @@ export class PhoneComponent {
   protected readonly primaryApps: readonly AppIcon[] = [
     {
       label: 'Store',
-      src: '/store.jpg',
+      src: '/images/icons/store.jpg',
       alt: 'Icone Store'
     },
     {
       label: 'Gallery',
-      src: '/gallery.jpg',
+      src: '/images/icons/gallery.jpg',
       alt: 'Icone Gallery'
     },
     {
       label: 'Play Store',
-      src: '/play store.jpg',
+      src: '/images/icons/play store.jpg',
       alt: 'Icone Play Store'
     },
     {
       label: 'Google',
-      src: '/google.jpg',
+      src: '/images/icons/google.jpg',
       alt: 'Icone dossier Google'
     }
   ];
@@ -47,22 +47,22 @@ export class PhoneComponent {
   protected readonly dockApps: readonly AppIcon[] = [
     {
       label: 'Phone',
-      src: '/phone.jpg',
+      src: '/images/icons/phone.jpg',
       alt: 'Icone Telephone'
     },
     {
       label: 'SMS',
-      src: '/sms.jpg',
+      src: '/images/icons/sms.jpg',
       alt: 'Icone SMS'
     },
     {
       label: 'Internet',
-      src: '/internet.jpg',
+      src: '/images/icons/internet.jpg',
       alt: 'Icone Internet'
     },
     {
       label: 'Camera',
-      src: '/camera.jpg',
+      src: '/images/icons/camera.jpg',
       alt: 'Icone Camera'
     }
   ];
