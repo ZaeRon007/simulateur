@@ -63,6 +63,10 @@
             <span class="distance-label">VITESSE</span>
             <span class="distance-value">{{ speedKph() | number: '1.0-0' }} km/h</span>
           </div>
+          <div class="metric-readout">
+            <span class="distance-label">TEMPS</span>
+            <span class="distance-value">{{ elapsedTimeFormatted() }}</span>
+          </div>
         </div>
         <app-phone></app-phone>
       </div>

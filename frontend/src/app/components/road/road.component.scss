@@ -138,6 +138,20 @@
   box-shadow: 0 0 0.3rem rgba(255, 194, 92, 0.9), 0 0 0.65rem rgba(255, 160, 31, 0.7);
 }
 
+// Brake lights on player car
+.car:not(.car-queued).car-brake-on .car-rear-light-left,
+.car:not(.car-queued).car-brake-on .car-rear-light-right {
+  background: #ff2626;
+  box-shadow: 0 0 0.3rem rgba(255, 0, 0, 0.85), 0 0 0.7rem rgba(255, 0, 0, 0.5);
+  transition: background 60ms ease, box-shadow 60ms ease;
+}
+
+// Rear-left when BOTH indicator AND brake active: split half yellow / half red
+.car:not(.car-queued).car-brake-on.car-indicator-on .car-rear-light-left {
+  background: linear-gradient(to right, #ffa81f 50%, #ff2626 50%);
+  box-shadow: 0 0 0.3rem rgba(255, 160, 31, 0.7), 0 0 0.7rem rgba(255, 0, 0, 0.5);
+}
+
 .car-wheel {
   position: absolute;
   width: 6px;
