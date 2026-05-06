@@ -9,11 +9,19 @@ import { RoadComponent } from '../../components/road/road.component';
   imports: [DecimalPipe, HeaderComponent, PhoneComponent, RoadComponent],
   templateUrl: './game.component.html',
   styleUrl: './game.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '(window:keydown.ArrowUp)': 'keyUpPressed.set(true)',
+    '(window:keyup.ArrowUp)': 'keyUpPressed.set(false)',
+    '(window:keydown.ArrowDown)': 'keyDownPressed.set(true)',
+    '(window:keyup.ArrowDown)': 'keyDownPressed.set(false)',
+  }
 })
 export class GameComponent {
   protected readonly isStarted = signal(false);
   protected readonly distanceMeters = signal(0);
+  protected readonly keyUpPressed = signal(false);
+  protected readonly keyDownPressed = signal(false);
 
   protected startGame(): void {
     this.isStarted.set(true);

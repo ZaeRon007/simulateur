@@ -8,10 +8,10 @@
         
         <div class="controls-diagram" aria-label="Touches directionnelles">
           <div class="keys-illustration" aria-hidden="true">
-            <div class="key key-up">↑</div>
+            <div class="key key-up" [class.key-pressed]="keyUpPressed()">↑</div>
             <div class="key-row">
               <div class="key">←</div>
-              <div class="key key-down">↓</div>
+              <div class="key key-down" [class.key-pressed]="keyDownPressed()">↓</div>
               <div class="key">→</div>
             </div>
           </div>

@@ -146,6 +146,12 @@
   width: 64px;
 }
 
+.key.key-pressed {
+  background: #ffcccc;
+  border-color: #cc0000;
+  color: #cc0000;
+}
+
 .controls-annotations {
   position: absolute;
   inset: 0;
