@@ -63,10 +63,6 @@
   pointer-events: none;
 }
 
-.road-running .road-center-line {
-  animation: center-line-scroll 72ms linear infinite;
-}
-
 .car {
   position: absolute;
   left: 31%;
@@ -272,12 +268,3 @@
   }
 }
 
-@keyframes center-line-scroll {
-  from {
-    background-position-y: 0;
-  }
-
-  to {
-    background-position-y: 24px;
-  }
-}

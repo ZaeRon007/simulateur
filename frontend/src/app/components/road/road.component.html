@@ -1,5 +1,9 @@
 <div class="road" [class.road-running]="running()" aria-label="Route de jeu simplifiee en noir et blanc">
-  <div class="road-center-line" aria-hidden="true"></div>
+  <div
+    class="road-center-line"
+    [style.background-position-y.px]="centerLineOffsetPx()"
+    aria-hidden="true"
+  ></div>
 
   <div #trafficLane class="traffic-lane" aria-hidden="true">
     @for (car of queuedCars(); track car.id) {

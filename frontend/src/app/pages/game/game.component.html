@@ -45,14 +45,24 @@
           </button>
         </div>
       }
-      <app-road [running]="isStarted()" (distanceMeters)="distanceMeters.set($event)"></app-road>
+      <app-road
+        [running]="isStarted()"
+        (distanceMeters)="distanceMeters.set($event)"
+        (speedKph)="speedKph.set($event)"
+      ></app-road>
     </div>
 
     <div class="column column-right">
       <div class="phone-column">
-        <div class="distance-display" aria-label="Distance parcourue">
-          <span class="distance-label">DISTANCE</span>
-          <span class="distance-value">{{ distanceMeters() | number: '1.0-0' }} m</span>
+        <div class="distance-display" aria-label="Indicateurs de conduite">
+          <div class="metric-readout">
+            <span class="distance-label">DISTANCE</span>
+            <span class="distance-value">{{ distanceMeters() | number: '1.0-0' }} m</span>
+          </div>
+          <div class="metric-readout">
+            <span class="distance-label">VITESSE</span>
+            <span class="distance-value">{{ speedKph() | number: '1.0-0' }} km/h</span>
+          </div>
         </div>
         <app-phone></app-phone>
       </div>

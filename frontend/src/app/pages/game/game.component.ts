@@ -20,6 +20,7 @@ import { RoadComponent } from '../../components/road/road.component';
 export class GameComponent {
   protected readonly isStarted = signal(false);
   protected readonly distanceMeters = signal(0);
+  protected readonly speedKph = signal(0);
   protected readonly keyUpPressed = signal(false);
   protected readonly keyDownPressed = signal(false);
 
