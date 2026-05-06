@@ -7,6 +7,7 @@ import {
   effect,
   inject,
   input,
+  output,
   signal,
   viewChild
 } from '@angular/core';
@@ -25,6 +26,11 @@ interface QueuedCar {
 export class RoadComponent {
   private static readonly carHeightPx = 96;
   private static readonly carGapPx = 48;
+  private static readonly carLengthMeters = 2.61;
+  private static readonly carDistanceGapMeters = 1.5;
+  private static readonly metersPerPixel =
+    (RoadComponent.carLengthMeters + RoadComponent.carDistanceGapMeters) /
+    (RoadComponent.carHeightPx + RoadComponent.carGapPx);
   private static readonly queueScrollDurationMs = 430;
   private static readonly spawnOffsetPx = 120;
 
@@ -33,13 +39,37 @@ export class RoadComponent {
   private readonly laneHeight = signal(0);
 
   private nextQueuedCarId = 0;
+  private leftLaneReferencePx = 0;
+  private travelledDistanceMeters = 0;
 
   readonly running = input(false);
+  readonly distanceMeters = output<number>();
   readonly queuedCars = signal<QueuedCar[]>([]);
+  readonly indicatorLit = signal(false);
 
   constructor() {
     effect((onCleanup) => {
-      if (!this.running() || !this.laneHeight()) {
+      if (!this.running()) {
+        this.indicatorLit.set(false);
+        return;
+      }
+
+      const blinkIntervalId = setInterval(() => {
+        this.indicatorLit.update((isLit) => !isLit);
+      }, 450);
+
+      onCleanup(() => clearInterval(blinkIntervalId));
+    });
+
+    effect((onCleanup) => {
+      if (!this.running()) {
+        this.leftLaneReferencePx = 0;
+        this.travelledDistanceMeters = 0;
+        this.distanceMeters.emit(0);
+        return;
+      }
+
+      if (!this.laneHeight()) {
         return;
       }
 
@@ -48,7 +78,9 @@ export class RoadComponent {
 
       const animate = (timestamp: number) => {
         if (previousTimestamp) {
-          this.advanceQueuedCars(timestamp - previousTimestamp);
+          this.leftLaneReferencePx += this.advanceQueuedCars(timestamp - previousTimestamp);
+          this.travelledDistanceMeters = this.leftLaneReferencePx * RoadComponent.metersPerPixel;
+          this.distanceMeters.emit(this.travelledDistanceMeters);
         }
 
         previousTimestamp = timestamp;
@@ -97,8 +129,12 @@ export class RoadComponent {
     return cars;
   }
 
-  private advanceQueuedCars(deltaMs: number): void {
+  private advanceQueuedCars(deltaMs: number): number {
     const laneHeight = this.laneHeight();
+    if (!laneHeight) {
+      return 0;
+    }
+
     const deltaPx = (this.getCarSpacingPx() / RoadComponent.queueScrollDurationMs) * deltaMs;
     const removalThreshold = laneHeight + RoadComponent.carHeightPx;
 
@@ -109,6 +145,8 @@ export class RoadComponent {
 
       return this.fillQueuedCars(movedCars, laneHeight);
     });
+
+    return deltaPx;
   }
 
   private fillQueuedCars(cars: QueuedCar[], laneHeight: number): QueuedCar[] {

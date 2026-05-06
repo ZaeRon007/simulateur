@@ -129,6 +129,19 @@
   box-shadow: 0 0 0.3rem rgba(255, 92, 92, 0.85), 0 0 0.7rem rgba(255, 92, 92, 0.5);
 }
 
+.car:not(.car-queued) .car-front-light-left,
+.car:not(.car-queued) .car-rear-light-left {
+  background: #7b5717;
+  box-shadow: none;
+  transition: background-color 120ms ease, box-shadow 120ms ease;
+}
+
+.car.car-indicator-on:not(.car-queued) .car-front-light-left,
+.car.car-indicator-on:not(.car-queued) .car-rear-light-left {
+  background: #ffa81f;
+  box-shadow: 0 0 0.3rem rgba(255, 194, 92, 0.9), 0 0 0.65rem rgba(255, 160, 31, 0.7);
+}
+
 .car-wheel {
   position: absolute;
   width: 6px;
