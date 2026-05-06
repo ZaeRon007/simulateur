@@ -21,7 +21,13 @@ interface QueuedCar {
   selector: 'app-road',
   templateUrl: './road.component.html',
   styleUrl: './road.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '(window:keydown.arrowup)': 'onAccelerateStart()',
+    '(window:keyup.arrowup)': 'onAccelerateEnd()',
+    '(window:keydown.arrowdown)': 'onBrakeStart()',
+    '(window:keyup.arrowdown)': 'onBrakeEnd()',
+  }
 })
 export class RoadComponent {
   private static readonly carHeightPx = 96;
@@ -33,6 +39,10 @@ export class RoadComponent {
     (RoadComponent.carHeightPx + RoadComponent.carGapPx);
   private static readonly queueScrollDurationMs = 430;
   private static readonly spawnOffsetPx = 120;
+  private static readonly maxSpeedPxPerMs =
+    (RoadComponent.carHeightPx + RoadComponent.carGapPx) / RoadComponent.queueScrollDurationMs;
+  private static readonly accelerationMs = 1500;
+  private static readonly decelerationMs = 1000;
 
   private readonly destroyRef = inject(DestroyRef);
   private readonly trafficLane = viewChild.required<ElementRef<HTMLDivElement>>('trafficLane');
@@ -41,6 +51,9 @@ export class RoadComponent {
   private nextQueuedCarId = 0;
   private leftLaneReferencePx = 0;
   private travelledDistanceMeters = 0;
+  private currentSpeedPxPerMs = 0;
+  private isAccelerating = false;
+  private isBraking = false;
 
   readonly running = input(false);
   readonly distanceMeters = output<number>();
@@ -65,6 +78,9 @@ export class RoadComponent {
       if (!this.running()) {
         this.leftLaneReferencePx = 0;
         this.travelledDistanceMeters = 0;
+        this.currentSpeedPxPerMs = 0;
+        this.isAccelerating = false;
+        this.isBraking = false;
         this.distanceMeters.emit(0);
         return;
       }
@@ -78,9 +94,27 @@ export class RoadComponent {
 
       const animate = (timestamp: number) => {
         if (previousTimestamp) {
-          this.leftLaneReferencePx += this.advanceQueuedCars(timestamp - previousTimestamp);
-          this.travelledDistanceMeters = this.leftLaneReferencePx * RoadComponent.metersPerPixel;
-          this.distanceMeters.emit(this.travelledDistanceMeters);
+          const deltaMs = timestamp - previousTimestamp;
+          const maxSpeed = RoadComponent.maxSpeedPxPerMs;
+
+          if (this.isAccelerating) {
+            this.currentSpeedPxPerMs = Math.min(
+              this.currentSpeedPxPerMs + maxSpeed * (deltaMs / RoadComponent.accelerationMs),
+              maxSpeed
+            );
+          } else if (this.isBraking) {
+            this.currentSpeedPxPerMs = Math.max(
+              this.currentSpeedPxPerMs - maxSpeed * (deltaMs / RoadComponent.decelerationMs),
+              0
+            );
+          }
+
+          if (this.currentSpeedPxPerMs > 0) {
+            const deltaPx = this.currentSpeedPxPerMs * deltaMs;
+            this.leftLaneReferencePx += this.advanceQueuedCars(deltaPx);
+            this.travelledDistanceMeters = this.leftLaneReferencePx * RoadComponent.metersPerPixel;
+            this.distanceMeters.emit(this.travelledDistanceMeters);
+          }
         }
 
         previousTimestamp = timestamp;
@@ -129,13 +163,12 @@ export class RoadComponent {
     return cars;
   }
 
-  private advanceQueuedCars(deltaMs: number): number {
+  private advanceQueuedCars(deltaPx: number): number {
     const laneHeight = this.laneHeight();
     if (!laneHeight) {
       return 0;
     }
 
-    const deltaPx = (this.getCarSpacingPx() / RoadComponent.queueScrollDurationMs) * deltaMs;
     const removalThreshold = laneHeight + RoadComponent.carHeightPx;
 
     this.queuedCars.update((cars) => {
@@ -180,5 +213,23 @@ export class RoadComponent {
 
   private getCarSpacingPx(): number {
     return RoadComponent.carHeightPx + RoadComponent.carGapPx;
+  }
+
+  protected onAccelerateStart(): void {
+    this.isAccelerating = true;
+    this.isBraking = false;
+  }
+
+  protected onAccelerateEnd(): void {
+    this.isAccelerating = false;
+  }
+
+  protected onBrakeStart(): void {
+    this.isBraking = true;
+    this.isAccelerating = false;
+  }
+
+  protected onBrakeEnd(): void {
+    this.isBraking = false;
   }
 }
