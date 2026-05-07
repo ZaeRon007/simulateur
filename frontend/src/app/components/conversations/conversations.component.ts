@@ -8,9 +8,5 @@ import { ChangeDetectionStrategy, Component, output } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ConversationsComponent {
-  readonly backClicked = output<void>();
 
-  protected onBackClick(): void {
-    this.backClicked.emit();
-  }
 }

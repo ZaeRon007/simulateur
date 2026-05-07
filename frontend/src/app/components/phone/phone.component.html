@@ -3,18 +3,18 @@
   <div class="phone-button phone-button-power" aria-hidden="true"></div>
 
   <div class="phone-screen">
-    @if (!conversationsOpen()) {
-      <div class="phone-camera" aria-hidden="true"></div>
+    <div class="phone-status-bar" aria-hidden="true">
+      <span class="phone-time">10:49</span>
 
-      <div class="phone-status-bar" aria-hidden="true">
-        <span class="phone-time">10:49</span>
-
-        <div class="phone-status-icons">
-          <span class="signal-bars"></span>
-          <span class="wifi-icon"></span>
-          <span class="battery-pill">63</span>
-        </div>
+      <div class="phone-status-icons">
+        <span class="signal-bars"></span>
+        <span class="wifi-icon"></span>
+        <span class="battery-pill">63</span>
       </div>
+    </div>
+
+    <div class="phone-camera" aria-hidden="true"></div>
+    @if (!conversationsOpen()) {
 
       <div class="wallpaper wallpaper-top" aria-hidden="true"></div>
       <div class="wallpaper wallpaper-bottom" aria-hidden="true"></div>
@@ -137,16 +137,15 @@
           </span>
         </div>
 
-        <div class="system-nav" aria-hidden="true">
-          <span class="nav-recent"></span>
-          <span class="nav-home"></span>
-          <span class="nav-back"></span>
-        </div>
-
-        <div class="gesture-bar" aria-hidden="true"></div>
       </div>
     } @else {
-      <app-conversations (backClicked)="closeConversations()"></app-conversations>
+      <app-conversations></app-conversations>
     }
+
+    <div class="system-nav" aria-hidden="true">
+          <span class="nav-recent"></span>
+          <span class="nav-home"></span>
+          <button type="button" class="nav-back" aria-label="Retour" (click)="closeConversations()"></button>
+        </div>
   </div>
 </div>
