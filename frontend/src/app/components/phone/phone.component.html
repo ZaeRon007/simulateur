@@ -4,12 +4,16 @@
 
   <div class="phone-screen">
     <div class="phone-status-bar" aria-hidden="true">
-      <span class="phone-time">10:49</span>
+      <span class="phone-time">{{ currentTime() }}</span>
 
       <div class="phone-status-icons">
         <span class="signal-bars"></span>
-        <span class="wifi-icon"></span>
-        <span class="battery-pill">63</span>
+        <svg class="wifi-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" width="14" height="14">
+          <path d="M1.5 8.5a13 13 0 0 1 21 0l-2 2a10 10 0 0 0-17 0l-2-2z"/>
+          <path d="M5.5 12.5a8 8 0 0 1 13 0l-2 2a5 5 0 0 0-9 0l-2-2z"/>
+          <path d="M9.5 16.5a4 4 0 0 1 5 0l-2.5 2.5-2.5-2.5z"/>
+        </svg>
+        <span class="battery-pill">2%</span>
       </div>
     </div>
 

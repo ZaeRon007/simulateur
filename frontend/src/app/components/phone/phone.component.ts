@@ -1,5 +1,5 @@
 import { NgOptimizedImage } from '@angular/common';
-import { ChangeDetectionStrategy, Component, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, signal } from '@angular/core';
 import { MatBadgeModule } from '@angular/material/badge';
 import { ConversationsComponent } from '../conversations/conversations.component';
 
@@ -20,6 +20,18 @@ export class PhoneComponent {
   readonly phoneBadgeCount = input(0);
   readonly smsBadgeCount = input(0);
   protected readonly conversationsOpen = signal(false);
+
+  protected readonly currentTime = signal(this.formatTime());
+
+  constructor() {
+    const intervalId = setInterval(() => this.currentTime.set(this.formatTime()), 1000);
+    inject(DestroyRef).onDestroy(() => clearInterval(intervalId));
+  }
+
+  private formatTime(): string {
+    const now = new Date();
+    return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+  }
 
   protected readonly primaryApps: readonly AppIcon[] = [
     {
