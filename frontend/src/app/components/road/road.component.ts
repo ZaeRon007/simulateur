@@ -17,6 +17,14 @@ interface QueuedCar {
   top: number;
 }
 
+interface OncomingCar {
+  top: number;
+  speedPxPerMs: number;
+  braking: boolean;
+  ownTravelledPx: number;
+  brakeTravelPx: number;
+}
+
 @Component({
   selector: 'app-road',
   templateUrl: './road.component.html',
@@ -45,12 +53,12 @@ export class RoadComponent {
     (RoadComponent.metersPerPixel * 1000);
   private static readonly accelerationMs = 1500;
   private static readonly coastingDecelerationMs = 3000;
-  // Braking distances (m) at each integer km/h speed (index = km/h, 0–50)
-  private static readonly BRAKING_DISTANCE_TABLE = [
-    0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 7, 7, 8, 9, 10, 10, 11, 12, 13,
-    13, 14, 15, 16, 17, 17, 18, 19, 20, 21, 22, 23, 23, 24, 25, 26, 27,
-    28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 42
-  ];
+  private static readonly emergencyBrakingDecelMs2 = 8;
+  private static readonly oncomingCarSpeedKph = 40;
+  private static readonly oncomingCarSpeedPxPerMs =
+    (RoadComponent.oncomingCarSpeedKph / 3.6) /
+    (RoadComponent.metersPerPixel * 1000);
+  private static readonly oncomingBrakeTravelRatio = 0.15;
 
   private readonly destroyRef = inject(DestroyRef);
   private readonly trafficLane = viewChild.required<ElementRef<HTMLDivElement>>('trafficLane');
@@ -66,10 +74,13 @@ export class RoadComponent {
   readonly running = input(false);
   readonly distanceMeters = output<number>();
   readonly speedKph = output<number>();
+  readonly crashed = output<void>();
   readonly queuedCars = signal<QueuedCar[]>([]);
   readonly indicatorLit = signal(false);
   readonly centerLineOffsetPx = signal(0);
   readonly brakeLightsLit = signal(false);
+  readonly oncomingCar = signal<OncomingCar | null>(null);
+  readonly gameOver = signal(false);
 
   constructor() {
     effect((onCleanup) => {
@@ -96,6 +107,8 @@ export class RoadComponent {
         this.centerLineOffsetPx.set(0);
         this.distanceMeters.emit(0);
         this.speedKph.emit(0);
+        this.oncomingCar.set(null);
+        this.gameOver.set(false);
         return;
       }
 
@@ -103,10 +116,29 @@ export class RoadComponent {
         return;
       }
 
+      const spawnDelayMs = 10_000 + Math.random() * 35_000;
+      const spawnTimeoutId = setTimeout(() => {
+        if (!this.running() || this.gameOver()) return;
+        const brakeTravelPx = this.laneHeight() * RoadComponent.oncomingBrakeTravelRatio;
+        this.oncomingCar.set({
+          top: -RoadComponent.carHeightPx,
+          speedPxPerMs: RoadComponent.oncomingCarSpeedPxPerMs,
+          braking: false,
+          ownTravelledPx: 0,
+          brakeTravelPx,
+        });
+      }, spawnDelayMs);
+
+      onCleanup(() => clearTimeout(spawnTimeoutId));
+
       let frameId = 0;
       let previousTimestamp = 0;
 
       const animate = (timestamp: number) => {
+        if (this.gameOver()) {
+          return;
+        }
+
         if (previousTimestamp) {
           const deltaMs = timestamp - previousTimestamp;
           const maxSpeed = RoadComponent.maxSpeedPxPerMs;
@@ -136,15 +168,18 @@ export class RoadComponent {
           const currentSpeedMetersPerSecond = this.getCurrentSpeedMetersPerSecond();
           this.speedKph.emit(currentSpeedMetersPerSecond * 3.6);
 
+          let playerDeltaPx = 0;
           if (this.currentSpeedPxPerMs > 0) {
             const deltaPx = this.currentSpeedPxPerMs * deltaMs;
-            const travelledDeltaPx = this.advanceQueuedCars(deltaPx);
+            playerDeltaPx = this.advanceQueuedCars(deltaPx);
             this.centerLineOffsetPx.update(
-              (offsetPx) => (offsetPx + travelledDeltaPx) % RoadComponent.centerLinePatternHeightPx
+              (offsetPx) => (offsetPx + playerDeltaPx) % RoadComponent.centerLinePatternHeightPx
             );
             this.travelledDistanceMeters += currentSpeedMetersPerSecond * (deltaMs / 1000);
             this.distanceMeters.emit(this.travelledDistanceMeters);
           }
+
+          this.updateOncomingCar(deltaMs, playerDeltaPx);
         }
 
         previousTimestamp = timestamp;
@@ -241,6 +276,45 @@ export class RoadComponent {
     return queuedCars;
   }
 
+  private updateOncomingCar(deltaMs: number, playerDeltaPx: number): void {
+    const oncoming = this.oncomingCar();
+    if (!oncoming) return;
+
+    const laneHeight = this.laneHeight();
+    const decelPxPerMs2 =
+      RoadComponent.emergencyBrakingDecelMs2 / (RoadComponent.metersPerPixel * 1_000_000);
+
+    let newSpeed = oncoming.speedPxPerMs;
+    let braking = oncoming.braking;
+
+    if (braking) {
+      newSpeed = Math.max(0, oncoming.speedPxPerMs - decelPxPerMs2 * deltaMs);
+    } else if (oncoming.ownTravelledPx >= oncoming.brakeTravelPx) {
+      braking = true;
+      newSpeed = Math.max(0, oncoming.speedPxPerMs - decelPxPerMs2 * deltaMs);
+    }
+
+    const ownDelta = newSpeed * deltaMs;
+    const totalDelta = ownDelta + playerDeltaPx;
+    const newTop = oncoming.top + totalDelta;
+    const newOwn = oncoming.ownTravelledPx + ownDelta;
+
+    const playerTopPx = laneHeight - 16 - RoadComponent.carHeightPx;
+    if (newTop + RoadComponent.carHeightPx >= playerTopPx) {
+      this.gameOver.set(true);
+      this.crashed.emit();
+      return;
+    }
+
+    this.oncomingCar.set({
+      ...oncoming,
+      top: newTop,
+      speedPxPerMs: newSpeed,
+      braking,
+      ownTravelledPx: newOwn,
+    });
+  }
+
   private getCarSpacingPx(): number {
     return RoadComponent.carHeightPx + RoadComponent.carGapPx;
   }
@@ -261,17 +335,8 @@ export class RoadComponent {
   protected onBrakeStart(): void {
     if (this.isBrakingActive || !this.running() || this.currentSpeedPxPerMs <= 0) return;
 
-    const speedKph = Math.min(50, Math.round(this.getCurrentSpeedMetersPerSecond() * 3.6));
-    const distanceMeters = RoadComponent.BRAKING_DISTANCE_TABLE[speedKph];
-
-    if (distanceMeters <= 0) {
-      this.currentSpeedPxPerMs = 0;
-      this.speedKph.emit(0);
-      return;
-    }
-
-    const distancePx = distanceMeters / RoadComponent.metersPerPixel;
-    this.brakingDecelPxPerMs2 = (this.currentSpeedPxPerMs * this.currentSpeedPxPerMs) / (2 * distancePx);
+    this.brakingDecelPxPerMs2 =
+      RoadComponent.emergencyBrakingDecelMs2 / (RoadComponent.metersPerPixel * 1_000_000);
     this.isBrakingActive = true;
     this.isAccelerating = false;
     this.brakeLightsLit.set(true);
