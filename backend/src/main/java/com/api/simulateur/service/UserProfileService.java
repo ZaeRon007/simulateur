@@ -20,6 +20,25 @@ public class UserProfileService {
         this.scoreRepository = scoreRepository;
     }
 
+    public void saveScore(String email, int reactionTimeMs) {
+        User user = userRepository.findByEmail(email.toLowerCase())
+            .orElseThrow(() -> new NotFoundException("Utilisateur introuvable"));
+
+        Score score = scoreRepository.findByUserId(user.getId()).orElseGet(() -> {
+            Score s = new Score();
+            s.setUser(user);
+            s.setBestScore(reactionTimeMs);
+            return s;
+        });
+
+        score.setScore(reactionTimeMs);
+        if (reactionTimeMs < score.getBestScore()) {
+            score.setBestScore(reactionTimeMs);
+        }
+
+        scoreRepository.save(score);
+    }
+
     public UserProfileResponse getProfileByEmail(String email) {
         User user = userRepository.findByEmail(email.toLowerCase())
             .orElseThrow(() -> new NotFoundException("Utilisateur introuvable"));
