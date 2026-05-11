@@ -4,6 +4,8 @@ import { HeaderComponent } from '../../components/header/header.component';
 import { PhoneComponent } from '../../components/phone/phone.component';
 import { RoadComponent } from '../../components/road/road.component';
 
+type GameState = 'idle' | 'playing' | 'crashed' | 'avoided' | 'phone-timeout';
+
 @Component({
   selector: 'app-game',
   imports: [DecimalPipe, HeaderComponent, PhoneComponent, RoadComponent],
@@ -18,12 +20,16 @@ import { RoadComponent } from '../../components/road/road.component';
   }
 })
 export class GameComponent {
-  protected readonly isStarted = signal(false);
+  protected readonly gameState = signal<GameState>('idle');
+  protected readonly reactionTime = signal<string | null>(null);
   protected readonly distanceMeters = signal(0);
   protected readonly speedKph = signal(0);
   protected readonly keyUpPressed = signal(false);
   protected readonly keyDownPressed = signal(false);
   protected readonly elapsedTimeMs = signal(0);
+  protected readonly phoneResetCount = signal(0);
+
+  protected readonly isStarted = computed(() => this.gameState() === 'playing');
 
   protected readonly elapsedTimeFormatted = computed(() => {
     const totalSeconds = Math.floor(this.elapsedTimeMs() / 1000);
@@ -54,6 +60,46 @@ export class GameComponent {
   }
 
   protected startGame(): void {
-    this.isStarted.set(true);
+    this.gameState.set('playing');
+    this.reactionTime.set(null);
+  }
+
+  private stopTimer(): void {
+    if (this.timerIntervalId !== null) {
+      clearInterval(this.timerIntervalId);
+      this.timerIntervalId = null;
+    }
+  }
+
+  protected onCrashed(reactionTime: string | null): void {
+    this.stopTimer();
+    this.gameState.set('crashed');
+    this.reactionTime.set(reactionTime);
+  }
+
+  protected onAvoided(reactionTime: string | null): void {
+    this.stopTimer();
+    this.gameState.set('avoided');
+    this.reactionTime.set(reactionTime);
+  }
+
+  protected onBrakingComplete(): void {
+    this.stopTimer();
+  }
+
+  protected onPhoneGameOver(): void {
+    this.stopTimer();
+    this.gameState.set('phone-timeout');
+  }
+
+  protected restartGame(): void {
+    this.stopTimer();
+    this.elapsedTimeMs.set(0);
+    this.distanceMeters.set(0);
+    this.speedKph.set(0);
+    this.reactionTime.set(null);
+    this.phoneResetCount.update(c => c + 1);
+    this.gameState.set('idle');
   }
 }
+

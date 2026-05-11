@@ -33,7 +33,7 @@
     </div>
 
     <div class="column column-center">
-      @if (!isStarted()) {
+      @if (gameState() === 'idle') {
         <div class="start-overlay">
           <button
             type="button"
@@ -45,10 +45,45 @@
           </button>
         </div>
       }
+
+      @if (gameState() === 'avoided') {
+        <div class="result-overlay result-overlay--success" role="alertdialog" aria-modal="true" aria-label="Partie réussie">
+          <p class="result-title result-title--success">BRAVO</p>
+          <p class="result-message">Vous vous êtes arrêté à temps !!!</p>
+          @if (reactionTime(); as time) {
+            <p class="result-reaction">⏱ Temps de réaction : {{ time }}</p>
+          }
+          <button type="button" class="retry-button" aria-label="Rejouer" (click)="restartGame()">Rejouer</button>
+        </div>
+      }
+
+      @if (gameState() === 'crashed') {
+        <div class="result-overlay result-overlay--fail" role="alertdialog" aria-modal="true" aria-label="Collision">
+          <p class="result-title result-title--fail">PERDU</p>
+          @if (reactionTime(); as time) {
+            <p class="result-message">Temps de réaction : {{ time }}</p>
+          } @else {
+            <p class="result-message">Vous n'avez pas réagi, mais votre famille est au courant</p>
+          }
+          <button type="button" class="retry-button" aria-label="Rejouer" (click)="restartGame()">Rejouer</button>
+        </div>
+      }
+
+      @if (gameState() === 'phone-timeout') {
+        <div class="result-overlay result-overlay--fail" role="alertdialog" aria-modal="true" aria-label="Distraction non gérée">
+          <p class="result-title result-title--fail">PERDU</p>
+          <p class="result-message">Vous devez répondre à votre famille</p>
+          <button type="button" class="retry-button" aria-label="Rejouer" (click)="restartGame()">Rejouer</button>
+        </div>
+      }
+
       <app-road
         [running]="isStarted()"
         (distanceMeters)="distanceMeters.set($event)"
         (speedKph)="speedKph.set($event)"
+        (brakingComplete)="onBrakingComplete()"
+        (crashed)="onCrashed($event)"
+        (avoidedCar)="onAvoided($event)"
       ></app-road>
     </div>
 
@@ -68,7 +103,7 @@
             <span class="distance-value">{{ elapsedTimeFormatted() }}</span>
           </div>
         </div>
-        <app-phone></app-phone>
+        <app-phone [gameRunning]="isStarted()" [resetCount]="phoneResetCount()" (gameOver)="onPhoneGameOver()"></app-phone>
       </div>
     </div>
   </main>
