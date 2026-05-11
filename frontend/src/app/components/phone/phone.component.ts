@@ -116,7 +116,7 @@ export class PhoneComponent {
   }
 
   protected onCallAnswered(): void {
-    this.distractionService.resetCountdown();
+    this.distractionService.pauseCountdown();
   }
 
   protected dismissDistraction(): void {

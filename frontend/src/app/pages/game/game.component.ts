@@ -3,6 +3,8 @@ import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, injec
 import { HeaderComponent } from '../../components/header/header.component';
 import { PhoneComponent } from '../../components/phone/phone.component';
 import { RoadComponent } from '../../components/road/road.component';
+import { AuthService } from '../../core/auth.service';
+import { ProfileService } from '../../core/profile.service';
 
 type GameState = 'idle' | 'playing' | 'crashed' | 'avoided' | 'phone-timeout';
 
@@ -39,6 +41,8 @@ export class GameComponent {
   });
 
   private readonly destroyRef = inject(DestroyRef);
+  private readonly authService = inject(AuthService);
+  private readonly profileService = inject(ProfileService);
   private timerIntervalId: ReturnType<typeof setInterval> | null = null;
   private timerStartTime = 0;
 
@@ -75,12 +79,14 @@ export class GameComponent {
     this.stopTimer();
     this.gameState.set('crashed');
     this.reactionTime.set(reactionTime);
+    this.trySaveScore(reactionTime);
   }
 
   protected onAvoided(reactionTime: string | null): void {
     this.stopTimer();
     this.gameState.set('avoided');
     this.reactionTime.set(reactionTime);
+    this.trySaveScore(reactionTime);
   }
 
   protected onBrakingComplete(): void {
@@ -90,6 +96,13 @@ export class GameComponent {
   protected onPhoneGameOver(): void {
     this.stopTimer();
     this.gameState.set('phone-timeout');
+  }
+
+  private trySaveScore(formattedTime: string | null): void {
+    if (!formattedTime || !this.authService.isAuthenticated()) return;
+    const ms = Math.round(parseFloat(formattedTime) * 1000);
+    if (isNaN(ms)) return;
+    this.profileService.submitScore(ms).subscribe();
   }
 
   protected restartGame(): void {

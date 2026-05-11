@@ -6,8 +6,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const token = authService.getToken();
   const isMeRequest = req.url.endsWith('/me') || req.url.endsWith('/me/');
+  const isScoreRequest = req.url.endsWith('/score') || req.url.endsWith('/score/');
 
-  if (!token || !isMeRequest) {
+  if (!token || (!isMeRequest && !isScoreRequest)) {
     return next(req);
   }
 

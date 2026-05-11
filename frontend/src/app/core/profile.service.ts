@@ -8,6 +8,10 @@ import { UserProfile, UserProfileApi } from './models';
 export class ProfileService {
   private readonly http = inject(HttpClient);
 
+  submitScore(reactionTimeMs: number): Observable<void> {
+    return this.http.post<void>(`${API_BASE_URL}/score`, { reaction_time: reactionTimeMs });
+  }
+
   getMe(): Observable<UserProfile> {
     return this.http.get<UserProfileApi>(`${API_BASE_URL}/me`).pipe(
       map((profile) => ({

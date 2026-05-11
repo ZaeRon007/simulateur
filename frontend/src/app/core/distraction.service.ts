@@ -95,6 +95,10 @@ export class DistractionService {
     }
   }
 
+  pauseCountdown(): void {
+    this.clearCountdown();
+  }
+
   resetCountdown(): void {
     if (this.countdownInterval !== null) {
       this.startCountdown();
