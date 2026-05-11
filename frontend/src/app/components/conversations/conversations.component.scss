@@ -166,6 +166,85 @@
   padding: 28px 20px;
 }
 
+.conversation-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  width: 100%;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  color: inherit;
+  text-align: left;
+  border-radius: 8px;
+}
+
+.conversation-item:focus-visible {
+  outline: 2px solid #87b4ff;
+  outline-offset: 2px;
+}
+
+.conversation-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.conv-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.conv-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.conv-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 2px;
+}
+
+.conv-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #f1f3f8;
+}
+
+.conv-time {
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.45);
+  flex-shrink: 0;
+}
+
+.conv-preview {
+  margin: 0;
+  font-size: 0.74rem;
+  color: rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.conv-unread-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ff6d00;
+  flex-shrink: 0;
+  box-shadow: 0 0 6px rgba(255, 109, 0, 0.6);
+}
+
 .empty-state {
   margin: 0;
   color: #b2b8c5;

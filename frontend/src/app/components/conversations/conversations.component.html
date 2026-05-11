@@ -1,21 +1,52 @@
-<section class="conversations" aria-label="Liste de conversations">
+@if (activeThread(); as thread) {
+  <app-sms-thread [conversation]="thread" (closed)="closeThread()"></app-sms-thread>
+} @else {
+  <section class="conversations" aria-label="Liste de conversations">
 
-  <header class="conversations-header">
-    <h2 class="title">Google Messages</h2>
+    <header class="conversations-header">
+      <h2 class="title">Google Messages</h2>
 
-    <div class="header-actions">
-      <button type="button" class="icon-button" aria-label="Rechercher dans les conversations">
-        <span class="search-icon" aria-hidden="true"></span>
-      </button>
+      <div class="header-actions">
+        <button type="button" class="icon-button" aria-label="Rechercher dans les conversations">
+          <span class="search-icon" aria-hidden="true"></span>
+        </button>
 
-      <button type="button" class="avatar-button" aria-label="Profil utilisateur">
-        <span class="avatar-placeholder" aria-hidden="true">U</span>
-      </button>
+        <button type="button" class="avatar-button" aria-label="Profil utilisateur">
+          <span class="avatar-placeholder" aria-hidden="true">U</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="conversation-list" role="list" aria-label="Conversations">
+      @if (conversations().length === 0) {
+        <p class="empty-state" role="status">Aucune conversation</p>
+      } @else {
+        @for (conv of conversations(); track conv.contact.id) {
+          <button
+            type="button"
+            class="conversation-item"
+            role="listitem"
+            [attr.aria-label]="'Conversation avec ' + conv.contact.name + ' — ' + conv.message"
+            (click)="openThread(conv)"
+          >
+            <div
+              class="conv-avatar"
+              [style.background-color]="conv.contact.avatarColor"
+              aria-hidden="true"
+            >{{ conv.contact.avatarInitials }}</div>
+            <div class="conv-body">
+              <div class="conv-meta">
+                <span class="conv-name">{{ conv.contact.name }}</span>
+                <span class="conv-time">maintenant</span>
+              </div>
+              <p class="conv-preview">{{ conv.message }}</p>
+            </div>
+            <span class="conv-unread-dot" aria-hidden="true"></span>
+          </button>
+        }
+      }
     </div>
-  </header>
 
-  <div class="conversation-list" role="list" aria-label="Conversations">
-    <p class="empty-state" role="status">Aucune conversation</p>
-  </div>
+  </section>
+}
 
-</section>
