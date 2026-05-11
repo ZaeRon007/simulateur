@@ -1,0 +1,55 @@
+<section class="thread" aria-label="Conversation avec {{ contact().name }}">
+  <header class="thread-header">
+    <button
+      type="button"
+      class="back-btn"
+      aria-label="Retour à la liste des conversations"
+      (click)="closed.emit()"
+    >
+      <span class="back-arrow" aria-hidden="true"></span>
+    </button>
+    <div
+      class="thread-avatar"
+      [style.background-color]="contact().avatarColor"
+      aria-hidden="true"
+    >{{ contact().avatarInitials }}</div>
+    <div class="thread-contact-info">
+      <p class="thread-contact-name">{{ contact().name }}</p>
+      <p class="thread-contact-relation">{{ contact().relation }}</p>
+    </div>
+  </header>
+
+  <div class="thread-messages" role="log" aria-live="polite" aria-label="Messages">
+    @for (msg of messages(); track $index) {
+      <div
+        class="message"
+        [class.message-from-contact]="msg.from === 'contact'"
+        [class.message-from-user]="msg.from === 'user'"
+      >
+        <span class="message-bubble">{{ msg.text }}</span>
+      </div>
+    }
+    @if (isWaitingReply()) {
+      <div class="message message-from-contact">
+        <span class="message-bubble typing-indicator" aria-label="Le contact est en train d'écrire">
+          <span></span><span></span><span></span>
+        </span>
+      </div>
+    }
+  </div>
+
+  @if (!repliesDone()) {
+    <div class="reply-suggestions" aria-label="Réponses suggérées">
+      @for (reply of suggestedReplies(); track reply) {
+        <button
+          type="button"
+          class="reply-chip"
+          [disabled]="isWaitingReply()"
+          (click)="sendReply(reply)"
+        >
+          {{ reply }}
+        </button>
+      }
+    </div>
+  }
+</section>

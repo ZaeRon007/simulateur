@@ -67,6 +67,22 @@
   box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.22);
 }
 
+.countdown-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: #4caf50;
+  border-radius: 0 2px 2px 0;
+  z-index: 50;
+  transition: width 50ms linear, background 0.3s;
+}
+
+.countdown-bar.countdown-urgent {
+  background: #f44336;
+  box-shadow: 0 0 6px rgba(244, 67, 54, 0.7);
+}
+
 .phone-status-bar {
   position: relative;
   z-index: 2;

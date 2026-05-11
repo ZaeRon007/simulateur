@@ -1,0 +1,102 @@
+<div
+  class="call-overlay"
+  [class.state-ringing]="callState() === 'ringing'"
+  [class.state-active]="callState() === 'active'"
+  [class.state-ended]="callState() === 'ended'"
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-label]="'Appel entrant de ' + contactName()"
+>
+  <div class="call-bg" aria-hidden="true"></div>
+
+  <div class="call-content">
+    <div class="call-status-text" aria-live="polite">
+      @if (callState() === 'ringing') {
+        <span>Appel entrant…</span>
+      } @else if (callState() === 'active') {
+        <span>En communication</span>
+      } @else {
+        <span>Appel terminé</span>
+      }
+    </div>
+
+    <div
+      class="contact-avatar"
+      [style.background-color]="contactColor()"
+      aria-hidden="true"
+    >
+      {{ contactInitials() }}
+    </div>
+
+    <div class="contact-info">
+      <p class="contact-name">{{ contactName() }}</p>
+      <p class="contact-relation">{{ contactRelation() }}</p>
+    </div>
+
+    @if (callState() === 'ringing') {
+      <div class="call-actions" aria-label="Actions pour l'appel entrant">
+        <button
+          type="button"
+          class="action-btn decline-btn"
+          aria-label="Refuser l'appel"
+          (click)="decline()"
+        >
+          <span class="btn-icon btn-icon-decline" aria-hidden="true"></span>
+          <span class="btn-label">Refuser</span>
+        </button>
+
+        <div
+          class="swipe-track"
+          role="group"
+          aria-label="Glisser pour décrocher"
+        >
+          <span class="swipe-hint" aria-hidden="true">Glisser pour décrocher →</span>
+          <div
+            #sliderThumb
+            class="swipe-thumb"
+            [style.transform]="'translateX(' + sliderX() + 'px)'"
+            [class.dragging]="isDragging()"
+            role="button"
+            tabindex="0"
+            aria-label="Décrocher"
+            (pointerdown)="onPointerDown($event)"
+            (pointermove)="onPointerMove($event)"
+            (pointerup)="onPointerUp()"
+            (pointercancel)="onPointerUp()"
+            (keydown.enter)="answer()"
+            (keydown.space)="answer()"
+          >
+            <span class="thumb-icon" aria-hidden="true"></span>
+          </div>
+        </div>
+      </div>
+    } @else if (callState() === 'active') {
+      <div class="call-active-ui" aria-label="Appel en cours">
+        <p class="call-duration" aria-live="polite" aria-label="Durée de l'appel">{{ callDuration() }}</p>
+        <div class="call-active-actions" role="group" aria-label="Options d'appel">
+          <button type="button" class="active-action-btn" aria-label="Couper le micro">
+            <span class="active-action-icon" aria-hidden="true">🎤</span>
+            <span class="active-action-label">Muet</span>
+          </button>
+          <button type="button" class="active-action-btn" aria-label="Haut-parleur">
+            <span class="active-action-icon" aria-hidden="true">🔊</span>
+            <span class="active-action-label">HP</span>
+          </button>
+          <button type="button" class="active-action-btn" aria-label="Clavier numérique">
+            <span class="active-action-icon" aria-hidden="true">⌨️</span>
+            <span class="active-action-label">Clavier</span>
+          </button>
+        </div>
+        <button
+          type="button"
+          class="action-btn decline-btn"
+          aria-label="Raccrocher"
+          (click)="hangUp()"
+        >
+          <span class="btn-icon btn-icon-decline" aria-hidden="true"></span>
+          <span class="btn-label">Raccrocher</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

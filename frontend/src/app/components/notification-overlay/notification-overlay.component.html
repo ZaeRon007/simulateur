@@ -1,0 +1,105 @@
+<div
+  class="notif-overlay"
+  role="alertdialog"
+  aria-modal="true"
+  aria-label="Notification"
+>
+  @if (asBattery(); as b) {
+    <div class="notif-card">
+      <div class="notif-icon notif-icon-battery" aria-hidden="true">🔋</div>
+      <div class="notif-body">
+        <p class="notif-title">Batterie critique</p>
+        <p class="notif-text">Batterie à {{ b.level }}% — Branchez le chargeur</p>
+      </div>
+      <button class="notif-close" aria-label="Fermer la notification" (click)="dismiss()">✕</button>
+      <div class="notif-actions">
+        <button class="notif-btn notif-btn-primary" (click)="dismiss()">OK</button>
+        <button class="notif-btn notif-btn-secondary" (click)="dismiss()">Ignorer</button>
+      </div>
+    </div>
+  }
+
+  @if (asPhoto(); as p) {
+    <div class="notif-card">
+      <div class="notif-header">
+        <div
+          class="notif-avatar"
+          [style.background-color]="p.contact.avatarColor"
+          aria-hidden="true"
+        >{{ p.contact.avatarInitials }}</div>
+        <div class="notif-body">
+          <p class="notif-title">{{ p.contact.name }}</p>
+          <p class="notif-text">{{ p.caption }} ({{ p.photoCount }} photos)</p>
+        </div>
+        <button class="notif-close" aria-label="Fermer" (click)="dismiss()">✕</button>
+      </div>
+      <div class="photo-preview" aria-hidden="true">
+        <div class="photo-thumb"></div>
+        <div class="photo-thumb photo-thumb-2"></div>
+        <div class="photo-thumb photo-thumb-3"></div>
+      </div>
+      <div class="notif-actions">
+        <button class="notif-btn notif-btn-primary" (click)="dismiss()">Voir</button>
+        <button class="notif-btn notif-btn-secondary" (click)="dismiss()">Plus tard</button>
+      </div>
+    </div>
+  }
+
+  @if (asReminder(); as r) {
+    <div class="notif-card">
+      <div class="notif-icon" aria-hidden="true">🗓️</div>
+      <div class="notif-body">
+        <p class="notif-title">Rappel</p>
+        <p class="notif-text">{{ r.text }}</p>
+      </div>
+      <button class="notif-close" aria-label="Fermer" (click)="dismiss()">✕</button>
+      <div class="notif-actions">
+        <button class="notif-btn notif-btn-primary" (click)="dismiss()">{{ r.confirmLabel }}</button>
+        <button class="notif-btn notif-btn-secondary" (click)="dismiss()">{{ r.declineLabel }}</button>
+      </div>
+    </div>
+  }
+
+  @if (asMusic(); as m) {
+    <div class="notif-card">
+      <div class="notif-header">
+        <div
+          class="notif-avatar"
+          [style.background-color]="m.contact.avatarColor"
+          aria-hidden="true"
+        >{{ m.contact.avatarInitials }}</div>
+        <div class="notif-body">
+          <p class="notif-title">{{ m.contact.name }} a partagé 🎵</p>
+          <p class="notif-text">{{ m.trackName }} — {{ m.artist }}</p>
+        </div>
+        <button class="notif-close" aria-label="Fermer" (click)="dismiss()">✕</button>
+      </div>
+      <div class="music-controls" aria-label="Contrôles de lecture">
+        <button class="music-btn" aria-label="Morceau précédent" (click)="dismiss()">⏮</button>
+        <button class="music-btn music-btn-play" aria-label="Lire" (click)="dismiss()">▶</button>
+        <button class="music-btn" aria-label="Morceau suivant" (click)="dismiss()">⏭</button>
+      </div>
+    </div>
+  }
+
+  @if (asLocation(); as l) {
+    <div class="notif-card">
+      <div class="notif-header">
+        <div
+          class="notif-avatar"
+          [style.background-color]="l.contact.avatarColor"
+          aria-hidden="true"
+        >{{ l.contact.avatarInitials }}</div>
+        <div class="notif-body">
+          <p class="notif-title">{{ l.contact.name }} 📍</p>
+          <p class="notif-text">Où es-tu ? 😰</p>
+        </div>
+        <button class="notif-close" aria-label="Fermer" (click)="dismiss()">✕</button>
+      </div>
+      <div class="notif-actions">
+        <button class="notif-btn notif-btn-primary" (click)="dismiss()">Partager ma position</button>
+        <button class="notif-btn notif-btn-secondary" (click)="dismiss()">Plus tard</button>
+      </div>
+    </div>
+  }
+</div>

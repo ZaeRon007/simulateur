@@ -18,6 +18,29 @@
     </div>
 
     <div class="phone-camera" aria-hidden="true"></div>
+
+    @if (hasActiveDistraction() && countdownProgress() > 0) {
+      <div
+        class="countdown-bar"
+        aria-hidden="true"
+        [style.width.%]="100 - countdownProgress()"
+        [class.countdown-urgent]="countdownProgress() > 60"
+      ></div>
+    }
+
+    @if (incomingCall(); as call) {
+      <app-incoming-call
+        [distraction]="call"
+        (dismissed)="dismissDistraction()"
+        (callAnswered)="onCallAnswered()"
+      ></app-incoming-call>
+    } @else if (notificationDistraction(); as notif) {
+      <app-notification-overlay
+        [distraction]="notif"
+        (dismissed)="dismissDistraction()"
+      ></app-notification-overlay>
+    }
+
     @if (!conversationsOpen()) {
 
       <div class="wallpaper wallpaper-top" aria-hidden="true"></div>
@@ -83,8 +106,8 @@
         <div class="dock">
           <span
             class="dock-icon-shell badge-anchor"
-            [matBadge]="phoneBadgeCount()"
-            [matBadgeHidden]="phoneBadgeCount() === 0"
+            [matBadge]="0"
+            [matBadgeHidden]="true"
             matBadgeColor="warn"
             matBadgeSize="small"
             matBadgeOverlap="true"
@@ -102,10 +125,10 @@
           <button
             type="button"
             class="dock-icon-button badge-anchor"
-            [matBadge]="smsBadgeCount()"
-            [matBadgeHidden]="smsBadgeCount() === 0"
+            [matBadge]="unreadSmsCount()"
+            [matBadgeHidden]="unreadSmsCount() === 0"
             matBadgeColor="warn"
-            matBadgeSize="small"
+            matBadgeSize="medium"
             matBadgeOverlap="true"
             aria-label="Ouvrir les conversations SMS"
             [attr.aria-expanded]="conversationsOpen()"
