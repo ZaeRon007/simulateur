@@ -2,6 +2,18 @@
   <div class="phone-button phone-button-volume" aria-hidden="true"></div>
   <div class="phone-button phone-button-power" aria-hidden="true"></div>
 
+  @if (hasActiveDistraction() && countdownProgress() > 0) {
+    <svg class="circle-timer" viewBox="0 0 64 64" aria-hidden="true">
+      <circle class="circle-timer-track" cx="32" cy="32" r="26"/>
+      <circle
+        class="circle-timer-progress"
+        [class.circle-timer-urgent]="countdownProgress() > 60"
+        cx="32" cy="32" r="26"
+        [style.stroke-dashoffset]="163.4 * (1 - countdownProgress() / 100)"
+      />
+    </svg>
+  }
+
   <div class="phone-screen">
     <div class="phone-status-bar" aria-hidden="true">
       <span class="phone-time">{{ currentTime() }}</span>
@@ -18,15 +30,6 @@
     </div>
 
     <div class="phone-camera" aria-hidden="true"></div>
-
-    @if (hasActiveDistraction() && countdownProgress() > 0) {
-      <div
-        class="countdown-bar"
-        aria-hidden="true"
-        [style.width.%]="100 - countdownProgress()"
-        [class.countdown-urgent]="countdownProgress() > 60"
-      ></div>
-    }
 
     @if (incomingCall(); as call) {
       <app-incoming-call

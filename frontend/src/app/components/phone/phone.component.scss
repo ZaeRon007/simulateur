@@ -67,22 +67,6 @@
   box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.22);
 }
 
-.countdown-bar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 3px;
-  background: #4caf50;
-  border-radius: 0 2px 2px 0;
-  z-index: 50;
-  transition: width 50ms linear, background 0.3s;
-}
-
-.countdown-bar.countdown-urgent {
-  background: #f44336;
-  box-shadow: 0 0 6px rgba(244, 67, 54, 0.7);
-}
-
 .phone-status-bar {
   position: relative;
   z-index: 2;
@@ -550,6 +534,40 @@
   margin: 8px auto 0;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.38);
+}
+
+.circle-timer {
+  position: absolute;
+  top: 20px;
+  left: -76px;
+  width: 64px;
+  height: 64px;
+  z-index: 100;
+  transform: rotate(-90deg);
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.6));
+}
+
+.circle-timer-track {
+  fill: rgba(0, 0, 0, 0.55);
+  stroke: rgba(255, 255, 255, 0.12);
+  stroke-width: 4;
+}
+
+.circle-timer-progress {
+  fill: none;
+  stroke: #4caf50;
+  stroke-width: 4.5;
+  stroke-linecap: round;
+  stroke-dasharray: 163.4;
+  stroke-dashoffset: 163.4;
+  transition:
+    stroke-dashoffset 50ms linear,
+    stroke 0.3s;
+}
+
+.circle-timer-progress.circle-timer-urgent {
+  stroke: #f44336;
+  filter: drop-shadow(0 0 4px rgba(244, 67, 54, 0.8));
 }
 
 @media (max-width: 1024px) {

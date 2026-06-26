@@ -60,8 +60,6 @@ export class RoadComponent {
     (RoadComponent.oncomingCarSpeedKph / 3.6) /
     (RoadComponent.metersPerPixel * 1000);
   private static readonly oncomingBrakeTravelRatio = 0.15;
-  private static readonly targetFps = 26;
-  private static readonly frameIntervalMs = 1000 / RoadComponent.targetFps;
   private static readonly dashOnPx = 12;
   private static readonly dashPatternPx = 24;
 
@@ -158,32 +156,27 @@ export class RoadComponent {
       const animate = (timestamp: number) => {
         if (this.gameOver()) return;
 
-        const elapsed = previousTimestamp ? timestamp - previousTimestamp : 0;
+        const deltaMs = previousTimestamp ? Math.min(timestamp - previousTimestamp, 50) : 0;
+        previousTimestamp = timestamp;
 
-        if (elapsed >= RoadComponent.frameIntervalMs || !previousTimestamp) {
-          previousTimestamp = timestamp;
+        if (deltaMs > 0) {
+          this.updatePhysics(deltaMs);
 
-          if (elapsed > 0) {
-            const deltaMs = Math.min(elapsed, RoadComponent.frameIntervalMs * 2);
-            this.updatePhysics(deltaMs);
-
-            let playerDeltaPx = 0;
-            if (this.currentSpeedPxPerMs > 0) {
-              playerDeltaPx = this.currentSpeedPxPerMs * deltaMs;
-              this.scrollOffset += playerDeltaPx;
-              this.recycleSegments(playerDeltaPx);
-              this.advanceQueuedCars(playerDeltaPx);
-              const speedMs = this.getCurrentSpeedMetersPerSecond();
-              this.travelledDistanceMeters += speedMs * (deltaMs / 1000);
-              this.distanceMeters.emit(this.travelledDistanceMeters);
-            }
-
-            this.updateOncomingCar(deltaMs, playerDeltaPx);
+          let playerDeltaPx = 0;
+          if (this.currentSpeedPxPerMs > 0) {
+            playerDeltaPx = this.currentSpeedPxPerMs * deltaMs;
+            this.scrollOffset += playerDeltaPx;
+            this.recycleSegments(playerDeltaPx);
+            this.advanceQueuedCars(playerDeltaPx);
+            const speedMs = this.getCurrentSpeedMetersPerSecond();
+            this.travelledDistanceMeters += speedMs * (deltaMs / 1000);
+            this.distanceMeters.emit(this.travelledDistanceMeters);
           }
 
-          this.drawFrame();
+          this.updateOncomingCar(deltaMs, playerDeltaPx);
         }
 
+        this.drawFrame();
         frameId = requestAnimationFrame(animate);
       };
 
