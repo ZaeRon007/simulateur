@@ -51,6 +51,7 @@ export class SmsThreadComponent implements OnInit {
       this.messages.update(msgs => [...msgs, { from: 'contact', text: autoReply }]);
       this.isWaitingReply.set(false);
       this.repliesDone.set(true);
+      setTimeout(() => this.closed.emit(), 1500);
     }, 2000);
   }
 }

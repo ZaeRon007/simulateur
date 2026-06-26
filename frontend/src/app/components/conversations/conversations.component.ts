@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, output, signal } from '@angular/core';
 import { SmsDistraction } from '../../core/distraction.models';
 import { DistractionService } from '../../core/distraction.service';
 import { SmsThreadComponent } from '../sms-thread/sms-thread.component';
@@ -12,6 +12,8 @@ import { SmsThreadComponent } from '../sms-thread/sms-thread.component';
 })
 export class ConversationsComponent {
   private readonly distractionService = inject(DistractionService);
+
+  readonly allDone = output<void>();
 
   protected readonly activeThread = signal<SmsDistraction | null>(null);
 
@@ -27,5 +29,6 @@ export class ConversationsComponent {
 
   protected closeThread(): void {
     this.activeThread.set(null);
+    this.allDone.emit();
   }
 }

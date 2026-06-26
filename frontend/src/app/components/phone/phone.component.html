@@ -131,7 +131,7 @@
             [matBadge]="unreadSmsCount()"
             [matBadgeHidden]="unreadSmsCount() === 0"
             matBadgeColor="warn"
-            matBadgeSize="medium"
+            matBadgeSize="large"
             matBadgeOverlap="true"
             aria-label="Ouvrir les conversations SMS"
             [attr.aria-expanded]="conversationsOpen()"
@@ -169,7 +169,7 @@
 
       </div>
     } @else {
-      <app-conversations></app-conversations>
+      <app-conversations (allDone)="closeConversations()"></app-conversations>
     }
 
     <div class="system-nav" aria-hidden="true">
