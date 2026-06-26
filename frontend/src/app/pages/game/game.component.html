@@ -3,33 +3,99 @@
 
   <main class="game-layout">
     <div class="column column-left">
-      <div class="controls-container">
-        <h2 class="controls-title">Touches</h2>
-        
-        <div class="controls-diagram" aria-label="Touches directionnelles">
-          <div class="keys-illustration" aria-hidden="true">
-            <div class="key key-up" [class.key-pressed]="keyUpPressed()">↑</div>
-            <div class="key-row">
-              <div class="key">←</div>
-              <div class="key key-down" [class.key-pressed]="keyDownPressed()">↓</div>
-              <div class="key">→</div>
+      @if (dualPhoneMode()) {
+        <div class="phone-column">
+          <div class="distance-display distance-display--spacer" aria-hidden="true">
+            <div class="metric-readout">
+              <span class="distance-label">DISTANCE</span>
+              <span class="distance-value">0 m</span>
+            </div>
+            <div class="metric-readout">
+              <span class="distance-label">VITESSE</span>
+              <span class="distance-value">0 km/h</span>
+            </div>
+            <div class="metric-readout">
+              <span class="distance-label">TEMPS</span>
+              <span class="distance-value">00:00</span>
             </div>
           </div>
-
-          <svg class="controls-annotations" viewBox="0 0 420 320" aria-hidden="true">
-            <polyline class="annotation-line" points="255,60 290,25 320,25"></polyline>
-            <polyline class="annotation-line" points="255,260 290,310 320,310"></polyline>
-          </svg>
-
-          <span class="annotation-label annotation-label-top">avancer</span>
-          <span class="annotation-label annotation-label-bottom">freiner</span>
+          <app-phone
+            [gameRunning]="isStarted()"
+            [resetCount]="phoneResetCount()"
+            [distractionsEnabled]="distractionsEnabled()"
+            [notificationProfile]="0"
+            [mirrored]="true"
+            (gameOver)="onPhoneGameOver()"
+          ></app-phone>
         </div>
-        
-        <div class="todo-section">
-          <h3 class="todo-title">TODO :</h3>
-          <p class="todo-text">N'oubliez pas de répondre à votre famille au volant, la famille avant TOUT</p>
+      } @else {
+        <div class="controls-container">
+          <h2 class="controls-title">Touches</h2>
+
+          <div class="controls-diagram" aria-label="Touches directionnelles">
+            <div class="keys-illustration" aria-hidden="true">
+              <div class="key key-up" [class.key-pressed]="keyUpPressed()">↑</div>
+              <div class="key-row">
+                <div class="key">←</div>
+                <div class="key key-down" [class.key-pressed]="keyDownPressed()">↓</div>
+                <div class="key">→</div>
+              </div>
+            </div>
+
+            <svg class="controls-annotations" viewBox="0 0 420 320" aria-hidden="true">
+              <polyline class="annotation-line" points="255,60 290,25 320,25"></polyline>
+              <polyline class="annotation-line" points="255,260 290,310 320,310"></polyline>
+            </svg>
+
+            <span class="annotation-label annotation-label-top">avancer</span>
+            <span class="annotation-label annotation-label-bottom">freiner</span>
+          </div>
+
+          <div class="distraction-toggle">
+            <span class="toggle-label">Distractions</span>
+            <label class="toggle-switch" [class.toggle-switch--disabled]="isStarted()">
+              <input
+                type="checkbox"
+                [checked]="distractionsEnabled()"
+                [disabled]="isStarted()"
+                (change)="distractionsEnabled.set(!distractionsEnabled())"
+                aria-label="Activer les distractions"
+              />
+              <span class="toggle-track">
+                <span class="toggle-thumb"></span>
+              </span>
+            </label>
+            <span class="toggle-state">{{ distractionsEnabled() ? 'Activées' : 'Désactivées' }}</span>
+          </div>
+
+          <div
+            class="game-modes-section"
+            [class.game-modes-section--disabled]="isStarted() || !distractionsEnabled()"
+          >
+            <span class="toggle-label">Mode de jeu</span>
+            <div class="game-modes-labels">
+              <span class="game-mode-label game-mode-label--classic">Classic</span>
+              <span class="game-mode-label game-mode-label--danger">You better<br>not try</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              [value]="notificationProfile() * 100"
+              [disabled]="isStarted() || !distractionsEnabled()"
+              (input)="onProfileChange($event)"
+              class="mode-range"
+              aria-label="Mode de jeu"
+            />
+            <span class="toggle-state">{{ profileLabel() }}</span>
+          </div>
+
+          <div class="todo-section">
+            <h3 class="todo-title">TODO :</h3>
+            <p class="todo-text">N'oubliez pas de répondre à votre famille au volant, la famille avant TOUT</p>
+          </div>
         </div>
-      </div>
+      }
     </div>
 
     <div class="column column-center">
@@ -103,7 +169,13 @@
             <span class="distance-value">{{ elapsedTimeFormatted() }}</span>
           </div>
         </div>
-        <app-phone [gameRunning]="isStarted()" [resetCount]="phoneResetCount()" (gameOver)="onPhoneGameOver()"></app-phone>
+        <app-phone
+          [gameRunning]="isStarted()"
+          [resetCount]="phoneResetCount()"
+          [distractionsEnabled]="distractionsEnabled()"
+          [notificationProfile]="dualPhoneMode() ? 0 : notificationProfile()"
+          (gameOver)="onPhoneGameOver()"
+        ></app-phone>
       </div>
     </div>
   </main>

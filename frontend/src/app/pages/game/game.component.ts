@@ -31,7 +31,17 @@ export class GameComponent {
   protected readonly elapsedTimeMs = signal(0);
   protected readonly phoneResetCount = signal(0);
 
+  protected readonly distractionsEnabled = signal(true);
+  protected readonly notificationProfile = signal(0);
   protected readonly isStarted = computed(() => this.gameState() === 'playing');
+  protected readonly dualPhoneMode = signal(false);
+
+  protected readonly profileLabel = computed(() => {
+    const p = this.notificationProfile();
+    if (p < 0.25) return 'Classic';
+    if (p > 0.75) return 'YOU BETTER NOT TRY';
+    return 'Advanced';
+  });
 
   protected readonly elapsedTimeFormatted = computed(() => {
     const totalSeconds = Math.floor(this.elapsedTimeMs() / 1000);
@@ -63,7 +73,13 @@ export class GameComponent {
     });
   }
 
+  protected onProfileChange(event: Event): void {
+    const value = +(event.target as HTMLInputElement).value;
+    this.notificationProfile.set(value / 100);
+  }
+
   protected startGame(): void {
+    this.dualPhoneMode.set(this.notificationProfile() >= 1);
     this.gameState.set('playing');
     this.reactionTime.set(null);
   }
@@ -111,6 +127,7 @@ export class GameComponent {
     this.distanceMeters.set(0);
     this.speedKph.set(0);
     this.reactionTime.set(null);
+    this.dualPhoneMode.set(false);
     this.phoneResetCount.update(c => c + 1);
     this.gameState.set('idle');
   }

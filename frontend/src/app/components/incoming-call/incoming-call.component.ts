@@ -67,6 +67,8 @@ export class IncomingCallComponent implements OnInit {
     this.callDurationMs.set(0);
     this.durationIntervalId = setInterval(() => this.callDurationMs.update(ms => ms + 1000), 1000);
     this.callAnswered.emit();
+    const autoHangUpMs = 1000 + Math.random() * 2000;
+    this.activeCallTimeout = setTimeout(() => this.endCall(), autoHangUpMs);
   }
 
   protected hangUp(): void {

@@ -570,6 +570,18 @@
   filter: drop-shadow(0 0 4px rgba(244, 67, 54, 0.8));
 }
 
+.phone--mirrored {
+  .phone-button {
+    right: auto;
+    left: -3px;
+  }
+
+  .circle-timer {
+    left: auto;
+    right: -76px;
+  }
+}
+
 @media (max-width: 1024px) {
   :host {
     width: min(280px, 100%);

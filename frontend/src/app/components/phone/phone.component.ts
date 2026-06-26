@@ -18,11 +18,15 @@ type AppIcon = {
   imports: [NgOptimizedImage, MatBadgeModule, ConversationsComponent, IncomingCallComponent, NotificationOverlayComponent],
   templateUrl: './phone.component.html',
   styleUrl: './phone.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [DistractionService],
 })
 export class PhoneComponent {
   readonly gameRunning = input(false);
   readonly resetCount = input(0);
+  readonly distractionsEnabled = input(true);
+  readonly notificationProfile = input(0);
+  readonly mirrored = input(false);
   readonly gameOver = output<void>();
 
   private readonly distractionService = inject(DistractionService);
@@ -57,6 +61,10 @@ export class PhoneComponent {
       this.distractionService.stop();
     });
 
+    effect(() => {
+      this.distractionService.notificationProfile.set(this.notificationProfile());
+    });
+
     // Reset phone display when REJOUER is clicked
     effect(() => {
       if (this.resetCount() > 0) {
@@ -65,9 +73,9 @@ export class PhoneComponent {
       }
     });
 
-    // Reset + start/stop service based on game state
+    // Reset + start/stop service based on game state and distraction toggle
     effect(() => {
-      if (this.gameRunning()) {
+      if (this.gameRunning() && this.distractionsEnabled()) {
         this.distractionService.start();
       } else {
         this.distractionService.stop();

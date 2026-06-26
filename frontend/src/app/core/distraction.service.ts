@@ -18,9 +18,16 @@ const SMS_POOL: ReadonlyArray<Omit<SmsDistraction, 'type' | 'contact'>> = [
   { message: "T'as pensé à ramener du pain ?", suggestedReplies: ["Oui c'est bon !", "Oups j'oublie pas", "J'en prends un"] },
   { message: 'Tu rentres à quelle heure ce soir ?', suggestedReplies: ['Vers 19h', 'Je sais pas encore', "Tard, ne m'attendez pas"] },
   { message: 'Appelle-moi quand tu peux ❤️', suggestedReplies: ["Je t'appelle dans 5min", "OK dès que j'ai le temps", "C'est urgent ?"] },
-  { message: 'Tu veux quoi pour le dîner ?', suggestedReplies: ['N\'importe quoi 😊', 'Des pâtes !', 'Je mange dehors ce soir'] },
-  { message: 'Regarde la photo que je t\'envoie 😂', suggestedReplies: ['Haha trop drôle 😂', "Qu'est-ce que c'est ?", "J'ai vu !"] },
-  { message: 'N\'oublie pas, on se retrouve à 20h', suggestedReplies: ["C'est noté !", 'Je serai là', 'Peut-être un peu en retard'] },
+  { message: 'Tu veux quoi pour le dîner ?', suggestedReplies: ["N'importe quoi 😊", 'Des pâtes !', 'Je mange dehors ce soir'] },
+  { message: "Regarde la photo que je t'envoie 😂", suggestedReplies: ['Haha trop drôle 😂', "Qu'est-ce que c'est ?", "J'ai vu !"] },
+  { message: "N'oublie pas, on se retrouve à 20h", suggestedReplies: ["C'est noté !", 'Je serai là', 'Peut-être un peu en retard'] },
+  { message: '🚨 RÉPONDS-MOI !!', suggestedReplies: ["Je suis en train de conduire !", "J'arrive !", 'Quoi ??'] },
+  { message: "Pourquoi tu réponds pas ???", suggestedReplies: ['Désolé, je conduis', "Je t'appelle après", 'Une seconde !'] },
+  { message: "C'est URGENT appelle-moi maintenant 😡", suggestedReplies: ["Je peux pas là !", "J'arrive !", 'Quoi ??'] },
+  { message: "T'as vu mon message ? Réponds !!!", suggestedReplies: ["Oui, une seconde", "Je suis en route", 'Je t\'appelle'] },
+  { message: "Allô ???? T'es vivant(e) ?! 😤", suggestedReplies: ['Oui je suis là !', 'Laisse-moi conduire !', "J'explique tout après"] },
+  { message: "On t'attend tous ! Tu arrives quand ???", suggestedReplies: ['Dans 5 min !', 'Je suis presque là', 'Bientôt !'] },
+  { message: "J'ai besoin de toi MAINTENANT 😭", suggestedReplies: ["Qu'est-ce qui se passe ?", "J'arrive !", 'Une minute !'] },
 ];
 
 const PHOTO_CAPTIONS = [
@@ -41,6 +48,9 @@ const REMINDER_POOL: ReadonlyArray<{ text: string; confirmLabel: string; decline
   { text: '🗓️ Dîner en famille ce soir — Tu viens ?', confirmLabel: "Oui, j'y serai !", declineLabel: 'Je ne peux pas' },
   { text: "🎂 C'est l'anniversaire de Mamie demain !", confirmLabel: "Je n'oublie pas", declineLabel: 'Rappelle-moi' },
   { text: '🏠 Réunion de famille dimanche — Présent ?', confirmLabel: 'Présent !', declineLabel: 'Je vois pas' },
+  { text: "⏰ RAPPEL URGENT : réponds aux messages !", confirmLabel: 'Je réponds !', declineLabel: 'Plus tard' },
+  { text: "🔔 Tu as 5 messages non lus en attente !", confirmLabel: 'Je lis maintenant', declineLabel: 'Ignorer' },
+  { text: "❗ Tout le monde te cherche — donne de tes nouvelles !", confirmLabel: "J'arrive !", declineLabel: 'Pas maintenant' },
 ];
 
 const TIMEOUT_MS = 2500;
@@ -56,7 +66,7 @@ const DISTRACTION_WEIGHTS: DistractionWeight[] = [
 
 const NOTIFICATION_TYPES: Array<DistractionEvent['type']> = ['battery', 'photo', 'reminder', 'music', 'location'];
 
-@Injectable({ providedIn: 'root' })
+@Injectable()
 export class DistractionService {
   readonly currentDistraction = signal<DistractionEvent | null>(null);
   readonly smsConversations = signal<Map<string, SmsDistraction>>(new Map());
@@ -64,6 +74,8 @@ export class DistractionService {
   /** 0 = full time remaining, 100 = timed out */
   readonly countdownProgress = signal(0);
   readonly timedOut = signal(false);
+  /** 0 = Classic (40% cascade), 1 = You Better Not Try (100% cascade) */
+  readonly notificationProfile = signal(0);
 
   private scheduledTimeout: ReturnType<typeof setTimeout> | null = null;
   private countdownInterval: ReturnType<typeof setInterval> | null = null;
@@ -109,7 +121,7 @@ export class DistractionService {
     this.clearCountdown();
     this.currentDistraction.set(null);
     if (this.running) {
-      this.scheduleNext();
+      this.scheduleNext(Math.random() < this.cascadeProb());
     }
   }
 
@@ -119,8 +131,12 @@ export class DistractionService {
     convs.delete(contactId);
     this.smsConversations.set(convs);
     if (this.running) {
-      this.scheduleNext();
+      this.scheduleNext(Math.random() < this.cascadeProb());
     }
+  }
+
+  private cascadeProb(): number {
+    return 0.4 + this.notificationProfile() * 0.6;
   }
 
   markSmsRead(contactId: string): void {
@@ -130,9 +146,9 @@ export class DistractionService {
     }
   }
 
-  private scheduleNext(): void {
+  private scheduleNext(forceShort = false): void {
     if (this.scheduledTimeout !== null) return;
-    const delayMs = (4 + Math.random() * 4) * 1000;
+    const delayMs = forceShort ? (0.5 + Math.random() * 1) * 1000 : (1.5 + Math.random() * 2.5) * 1000;
     this.scheduledTimeout = setTimeout(() => {
       this.scheduledTimeout = null;
       if (this.running) {
@@ -209,7 +225,7 @@ export class DistractionService {
       }
 
       case 'battery':
-        return { type: 'battery', level: 1 };
+        return { type: 'battery', level: Math.random() < 0.6 ? 1 : 5 };
 
       case 'photo': {
         const caption = PHOTO_CAPTIONS[Math.floor(Math.random() * PHOTO_CAPTIONS.length)];
