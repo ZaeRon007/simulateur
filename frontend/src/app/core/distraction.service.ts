@@ -1,4 +1,5 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
+import { AudioService } from './audio.service';
 import {
   DistractionEvent,
   FamilyContact,
@@ -68,6 +69,8 @@ const NOTIFICATION_TYPES: Array<DistractionEvent['type']> = ['battery', 'photo',
 
 @Injectable()
 export class DistractionService {
+  private readonly audioService = inject(AudioService);
+
   readonly currentDistraction = signal<DistractionEvent | null>(null);
   readonly smsConversations = signal<Map<string, SmsDistraction>>(new Map());
   readonly unreadSmsCount = signal(0);
@@ -101,6 +104,7 @@ export class DistractionService {
   stop(): void {
     this.running = false;
     this.clearCountdown();
+    this.audioService.stopCallRingtone();
     if (this.scheduledTimeout !== null) {
       clearTimeout(this.scheduledTimeout);
       this.scheduledTimeout = null;
@@ -161,8 +165,14 @@ export class DistractionService {
     const event = this.generateEvent();
     if (event.type === 'sms') {
       this.addSmsConversation(event as SmsDistraction);
+      this.audioService.playSmsNotification();
     } else {
       this.currentDistraction.set(event);
+      if (event.type === 'call') {
+        this.audioService.playCallRingtone();
+      } else {
+        this.audioService.playGeneralNotification();
+      }
     }
     this.startCountdown();
   }
@@ -176,19 +186,19 @@ export class DistractionService {
       const progress = Math.min(100, (elapsed / TIMEOUT_MS) * 100);
       this.countdownProgress.set(progress);
       if (progress >= 100) {
-        this.clearCountdown();
-        this.timedOut.set(true);
-        this.stop();
+        this.clearCountdown(false);
       }
     }, TICK_MS);
   }
 
-  private clearCountdown(): void {
+  private clearCountdown(resetProgress = true): void {
     if (this.countdownInterval !== null) {
       clearInterval(this.countdownInterval);
       this.countdownInterval = null;
     }
-    this.countdownProgress.set(0);
+    if (resetProgress) {
+      this.countdownProgress.set(0);
+    }
   }
 
   private generateEvent(): DistractionEvent {

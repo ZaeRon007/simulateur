@@ -12,6 +12,7 @@ import {
   signal,
   viewChild
 } from '@angular/core';
+import { AudioService } from '../../core/audio.service';
 
 interface RoadSegment {
   offsetY: number;
@@ -64,6 +65,7 @@ export class RoadComponent {
   private static readonly dashPatternPx = 24;
 
   private readonly destroyRef = inject(DestroyRef);
+  private readonly audioService = inject(AudioService);
   private readonly roadCanvas = viewChild.required<ElementRef<HTMLCanvasElement>>('roadCanvas');
   private readonly laneHeight = signal(0);
 
@@ -90,6 +92,7 @@ export class RoadComponent {
   readonly crashed = output<string | null>();
   readonly brakingComplete = output<void>();
   readonly avoidedCar = output<string | null>();
+  readonly brakedNeedlessly = output<void>();
   readonly indicatorLit = signal(false);
   readonly brakeLightsLit = signal(false);
   readonly gameOver = signal(false);
@@ -132,6 +135,8 @@ export class RoadComponent {
       }
 
       if (!this.laneHeight()) return;
+
+      this.audioService.startEngine();
 
       this.scrollOffset = 0;
       this.initSegments();
@@ -181,7 +186,10 @@ export class RoadComponent {
       };
 
       frameId = requestAnimationFrame(animate);
-      onCleanup(() => cancelAnimationFrame(frameId));
+      onCleanup(() => {
+        cancelAnimationFrame(frameId);
+        this.audioService.stopEngine();
+      });
     });
 
     afterNextRender(() => {
@@ -323,7 +331,9 @@ export class RoadComponent {
       );
     }
 
-    this.speedKph.emit(this.getCurrentSpeedMetersPerSecond() * 3.6);
+    const kph = this.getCurrentSpeedMetersPerSecond() * 3.6;
+    this.speedKph.emit(kph);
+    this.audioService.updateEngineSpeed(kph);
   }
 
   // ── Oncoming car ──────────────────────────────────────────────────────────
@@ -517,10 +527,12 @@ export class RoadComponent {
   protected onBrakeStart(): void {
     if (this.isBrakingActive || !this.running() || this.currentSpeedPxPerMs <= 0) return;
 
-    // Braking before oncoming car is visible (but car exists) = PERDU
-    if (this.oncomingCarState && !this.oncomingVisible) {
+    this.audioService.playBrake();
+
+    // Braking with no opponent on screen = PERDU
+    if (!this.oncomingVisible) {
       this.gameOver.set(true);
-      this.crashed.emit(null);
+      this.brakedNeedlessly.emit();
       return;
     }
 

@@ -28,6 +28,7 @@ export class PhoneComponent {
   readonly notificationProfile = input(0);
   readonly mirrored = input(false);
   readonly gameOver = output<void>();
+  readonly distractionTimerProgress = output<number>();
 
   private readonly distractionService = inject(DistractionService);
   private readonly destroyRef = inject(DestroyRef);
@@ -87,6 +88,10 @@ export class PhoneComponent {
       if (this.distractionService.timedOut()) {
         this.gameOver.emit();
       }
+    });
+
+    effect(() => {
+      this.distractionTimerProgress.emit(this.distractionService.countdownProgress());
     });
   }
 

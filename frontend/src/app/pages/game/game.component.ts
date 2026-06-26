@@ -3,10 +3,11 @@ import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, injec
 import { HeaderComponent } from '../../components/header/header.component';
 import { PhoneComponent } from '../../components/phone/phone.component';
 import { RoadComponent } from '../../components/road/road.component';
+import { AudioService } from '../../core/audio.service';
 import { AuthService } from '../../core/auth.service';
 import { ProfileService } from '../../core/profile.service';
 
-type GameState = 'idle' | 'playing' | 'crashed' | 'avoided' | 'phone-timeout';
+type GameState = 'idle' | 'playing' | 'crashed' | 'avoided' | 'phone-timeout' | 'braked-needlessly';
 
 @Component({
   selector: 'app-game',
@@ -36,6 +37,15 @@ export class GameComponent {
   protected readonly isStarted = computed(() => this.gameState() === 'playing');
   protected readonly dualPhoneMode = signal(false);
 
+  protected readonly leftPhoneProgress = signal(0);
+  protected readonly rightPhoneProgress = signal(0);
+  protected readonly roadFilter = computed(() => {
+    const progress = Math.max(this.leftPhoneProgress(), this.rightPhoneProgress());
+    if (progress < 60) return '';
+    const blur = ((progress - 60) / 40) * 80;
+    return `blur(${blur.toFixed(1)}px)`;
+  });
+
   protected readonly profileLabel = computed(() => {
     const p = this.notificationProfile();
     if (p < 0.25) return 'Classic';
@@ -53,6 +63,7 @@ export class GameComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly authService = inject(AuthService);
   private readonly profileService = inject(ProfileService);
+  protected readonly audioService = inject(AudioService);
   private timerIntervalId: ReturnType<typeof setInterval> | null = null;
   private timerStartTime = 0;
 
@@ -79,6 +90,7 @@ export class GameComponent {
   }
 
   protected startGame(): void {
+    this.audioService.unlock();
     this.dualPhoneMode.set(this.notificationProfile() >= 1);
     this.gameState.set('playing');
     this.reactionTime.set(null);
@@ -112,6 +124,11 @@ export class GameComponent {
   protected onPhoneGameOver(): void {
     this.stopTimer();
     this.gameState.set('phone-timeout');
+  }
+
+  protected onBrakedNeedlessly(): void {
+    this.stopTimer();
+    this.gameState.set('braked-needlessly');
   }
 
   private trySaveScore(formattedTime: string | null): void {

@@ -11,6 +11,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { AudioService } from '../../core/audio.service';
 import { CallDistraction } from '../../core/distraction.models';
 
 type CallState = 'ringing' | 'active' | 'ended';
@@ -43,6 +44,7 @@ export class IncomingCallComponent implements OnInit {
   protected readonly contactColor = computed(() => this.distraction().contact.avatarColor);
 
   private readonly destroyRef = inject(DestroyRef);
+  private readonly audioService = inject(AudioService);
   private readonly TRACK_WIDTH = 200;
   private readonly THUMB_SIZE = 56;
   private readonly MAX_SLIDE = this.TRACK_WIDTH - this.THUMB_SIZE - 8;
@@ -63,6 +65,7 @@ export class IncomingCallComponent implements OnInit {
   protected answer(): void {
     if (this.callState() !== 'ringing') return;
     if (this.activeCallTimeout) clearTimeout(this.activeCallTimeout);
+    this.audioService.stopCallRingtone();
     this.callState.set('active');
     this.callDurationMs.set(0);
     this.durationIntervalId = setInterval(() => this.callDurationMs.update(ms => ms + 1000), 1000);
@@ -77,6 +80,7 @@ export class IncomingCallComponent implements OnInit {
 
   protected decline(): void {
     if (this.activeCallTimeout) clearTimeout(this.activeCallTimeout);
+    this.audioService.stopCallRingtone();
     this.callState.set('ended');
     setTimeout(() => this.dismissed.emit(), 1200);
   }
