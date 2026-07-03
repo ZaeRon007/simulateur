@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulateur — Présentation</title>
+  <style>
+    :root {
+      --primary: #e53935;
+      --primary-dark: #b71c1c;
+      --accent: #ff7043;
+      --dark: #1a1a2e;
+      --darker: #0f0f1a;
+      --surface: #16213e;
+      --surface2: #0f3460;
+      --text: #f0f0f0;
+      --muted: #a0a0b0;
+      --road: #2d2d2d;
+      --lane: #f5c518;
+      --green: #43a047;
+      --blue: #1e88e5;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--darker);
+      color: var(--text);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* ── Slideshow container ── */
+    #slideshow {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 60px 80px;
+      opacity: 0;
+      transform: translateX(60px);
+      transition: opacity .45s ease, transform .45s ease;
+      pointer-events: none;
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+
+    .slide.exit {
+      opacity: 0;
+      transform: translateX(-60px);
+    }
+
+    /* ── Slide backgrounds ── */
+    .slide-hero        { background: radial-gradient(ellipse at 30% 50%, #1a0a0a 0%, var(--darker) 70%); }
+    .slide-problem     { background: radial-gradient(ellipse at 70% 30%, #1a1000 0%, var(--darker) 70%); }
+    .slide-solution    { background: radial-gradient(ellipse at 30% 70%, #001a0a 0%, var(--darker) 70%); }
+    .slide-features    { background: radial-gradient(ellipse at 60% 40%, #000d1a 0%, var(--darker) 70%); }
+    .slide-gameplay    { background: radial-gradient(ellipse at 40% 60%, #1a000d 0%, var(--darker) 70%); }
+    .slide-tech        { background: radial-gradient(ellipse at 50% 50%, #000a1a 0%, var(--darker) 70%); }
+    .slide-archi       { background: radial-gradient(ellipse at 30% 30%, #0a001a 0%, var(--darker) 70%); }
+    .slide-impact      { background: radial-gradient(ellipse at 70% 70%, #001a10 0%, var(--darker) 70%); }
+    .slide-end         { background: radial-gradient(ellipse at 50% 50%, #1a0505 0%, var(--darker) 70%); }
+
+    /* ── Common layout ── */
+    .slide-content {
+      width: 100%;
+      max-width: 1100px;
+    }
+
+    .slide-number {
+      position: absolute;
+      bottom: 28px;
+      right: 40px;
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: 1px;
+    }
+
+    /* ── Typography ── */
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 18px;
+      padding: 4px 12px;
+      border: 1px solid var(--primary);
+      border-radius: 20px;
+    }
+
+    h1 {
+      font-size: clamp(42px, 6vw, 72px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -1px;
+    }
+
+    h2 {
+      font-size: clamp(28px, 4vw, 48px);
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 32px;
+    }
+
+    h3 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+
+    .subtitle {
+      font-size: clamp(16px, 2vw, 22px);
+      color: var(--muted);
+      margin-top: 16px;
+      line-height: 1.6;
+      max-width: 700px;
+    }
+
+    .highlight { color: var(--primary); }
+    .highlight-green { color: var(--green); }
+    .highlight-blue { color: var(--blue); }
+    .highlight-orange { color: var(--accent); }
+
+    /* ── Cards ── */
+    .cards {
+      display: grid;
+      gap: 20px;
+      width: 100%;
+    }
+
+    .cards-3 { grid-template-columns: repeat(3, 1fr); }
+    .cards-2 { grid-template-columns: repeat(2, 1fr); }
+    .cards-4 { grid-template-columns: repeat(4, 1fr); }
+
+    .card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 28px 24px;
+      transition: border-color .2s;
+    }
+
+    .card:hover { border-color: rgba(229,57,53,0.4); }
+
+    .card-icon {
+      font-size: 36px;
+      margin-bottom: 14px;
+      display: block;
+    }
+
+    .card p {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ── Stat blocks ── */
+    .stats {
+      display: flex;
+      gap: 32px;
+      margin-top: 32px;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      text-align: center;
+      padding: 24px 32px;
+      background: rgba(229,57,53,0.08);
+      border: 1px solid rgba(229,57,53,0.2);
+      border-radius: 16px;
+      flex: 1;
+      min-width: 140px;
+    }
+
+    .stat-value {
+      font-size: 48px;
+      font-weight: 800;
+      color: var(--primary);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 8px;
+      line-height: 1.4;
+    }
+
+    /* ── Phone mockup ── */
+    .phone-mockup {
+      width: 200px;
+      height: 380px;
+      background: #111;
+      border-radius: 32px;
+      border: 3px solid #333;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,.6);
+      flex-shrink: 0;
+    }
+
+    .phone-notch {
+      width: 80px;
+      height: 20px;
+      background: #111;
+      border-radius: 0 0 12px 12px;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+    }
+
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, #0a0a1a 0%, #1a1a2e 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 30px 16px 16px;
+    }
+
+    .phone-notification {
+      width: 100%;
+      background: rgba(229,57,53,0.15);
+      border: 1px solid rgba(229,57,53,0.4);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 11px;
+    }
+
+    .phone-notification .notif-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 10px;
+    }
+
+    .phone-notification .notif-body {
+      color: #ccc;
+      font-size: 10px;
+    }
+
+    /* ── Road illustration ── */
+    .road-strip {
+      width: 100%;
+      height: 60px;
+      background: var(--road);
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+      margin: 16px 0;
+    }
+
+    .road-line {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 6px;
+      background: var(--lane);
+      border-radius: 3px;
+      animation: road-move 1.5s linear infinite;
+    }
+
+    @keyframes road-move {
+      from { transform: translateY(-50%) translateX(0); }
+      to   { transform: translateY(-50%) translateX(-120px); }
+    }
+
+    /* ── Tech badges ── */
+    .tech-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .badge {
+      padding: 8px 18px;
+      border-radius: 24px;
+      font-size: 14px;
+      font-weight: 600;
+      border: 1px solid;
+    }
+
+    .badge-angular  { color: #dd0031; border-color: #dd0031; background: rgba(221,0,49,.08); }
+    .badge-spring   { color: #6db33f; border-color: #6db33f; background: rgba(109,179,63,.08); }
+    .badge-java     { color: #f89820; border-color: #f89820; background: rgba(248,152,32,.08); }
+    .badge-mysql    { color: #00758f; border-color: #00758f; background: rgba(0,117,143,.08); }
+    .badge-ts       { color: #3178c6; border-color: #3178c6; background: rgba(49,120,198,.08); }
+    .badge-jwt      { color: #fb015b; border-color: #fb015b; background: rgba(251,1,91,.08); }
+    .badge-material { color: #9c27b0; border-color: #9c27b0; background: rgba(156,39,176,.08); }
+    .badge-rxjs     { color: #e2005a; border-color: #e2005a; background: rgba(226,0,90,.08); }
+    .badge-canvas   { color: #ff9800; border-color: #ff9800; background: rgba(255,152,0,.08); }
+    .badge-vitest   { color: #729b1a; border-color: #729b1a; background: rgba(114,155,26,.08); }
+
+    /* ── Architecture diagram ── */
+    .archi-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      width: 100%;
+      margin-top: 16px;
+    }
+
+    .archi-box {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 16px;
+      padding: 20px 24px;
+      text-align: center;
+      min-width: 160px;
+    }
+
+    .archi-box .box-icon { font-size: 32px; margin-bottom: 8px; }
+    .archi-box .box-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+    .archi-box .box-sub { font-size: 11px; color: var(--muted); }
+
+    .archi-arrow {
+      font-size: 28px;
+      color: var(--muted);
+      margin: 0 16px;
+    }
+
+    .archi-box.fe { border-color: rgba(221,0,49,.4); }
+    .archi-box.be { border-color: rgba(109,179,63,.4); }
+    .archi-box.db { border-color: rgba(0,117,143,.4); }
+
+    /* ── Two-column ── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+      width: 100%;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      width: 60px;
+      height: 4px;
+      background: var(--primary);
+      border-radius: 2px;
+      margin: 16px 0 24px;
+    }
+
+    /* ── List ── */
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .feature-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .feature-list li::before {
+      content: '▸';
+      color: var(--primary);
+      font-size: 14px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* ── Hero slide specific ── */
+    .hero-logo {
+      font-size: 96px;
+      line-height: 1;
+      margin-bottom: 8px;
+      display: block;
+      filter: drop-shadow(0 0 40px rgba(229,57,53,.4));
+    }
+
+    .hero-title {
+      font-size: clamp(56px, 8vw, 90px);
+      font-weight: 900;
+      letter-spacing: -3px;
+      line-height: 1;
+    }
+
+    .hero-sub {
+      font-size: 20px;
+      color: var(--muted);
+      margin-top: 20px;
+      max-width: 560px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 32px;
+      padding: 10px 20px;
+      background: rgba(229,57,53,.1);
+      border: 1px solid rgba(229,57,53,.3);
+      border-radius: 24px;
+      font-size: 14px;
+      color: var(--primary);
+    }
+
+    /* ── Progress bar ── */
+    #progress {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      background: var(--primary);
+      transition: width .4s ease;
+      z-index: 100;
+    }
+
+    /* ── Navigation ── */
+    #nav {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .nav-btn {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: var(--text);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .2s;
+    }
+
+    .nav-btn:hover { background: rgba(229,57,53,0.3); border-color: var(--primary); }
+
+    .nav-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.25);
+      cursor: pointer;
+      transition: background .2s, transform .2s;
+    }
+
+    .dot.active {
+      background: var(--primary);
+      transform: scale(1.4);
+    }
+
+    /* ── End slide ── */
+    .end-cta {
+      margin-top: 32px;
+      padding: 20px 40px;
+      background: var(--primary);
+      border-radius: 50px;
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      display: inline-block;
+      box-shadow: 0 8px 32px rgba(229,57,53,.4);
+    }
+  </style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<div id="slideshow">
+
+  <!-- ── 1. HERO ── -->
+  <section class="slide slide-hero active" data-index="0">
+    <div class="slide-content">
+      <span class="tag">Zenika — 2026</span>
+      <div>
+        <span class="hero-logo">🚗</span>
+        <h1 class="hero-title"><span class="highlight">Simulateur</span></h1>
+        <p class="hero-sub">Un jeu éducatif pour sensibiliser aux dangers du téléphone au volant, à travers une expérience immersive et gamifiée.</p>
+        <div class="hero-badge">
+          <span>🎮</span> Application web full-stack — Angular · Spring Boot
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">1 / 9</div>
+  </section>
+
+  <!-- ── 2. PROBLÈME ── -->
+  <section class="slide slide-problem" data-index="1">
+    <div class="slide-content">
+      <span class="tag">Le problème</span>
+      <h2>Le téléphone au volant :<br>un <span class="highlight">risque majeur</span> sous-estimé</h2>
+      <div class="divider"></div>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-value">×3</div>
+          <div class="stat-label">Risque d'accident multiplié par 3 en téléphonant au volant</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">23%</div>
+          <div class="stat-label">Des accidents corporels impliquent la distraction au volant</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">~5s</div>
+          <div class="stat-label">Les yeux quittent la route en moyenne lors de la lecture d'un SMS</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">500K+</div>
+          <div class="stat-label">Infractions pour usage du téléphone constatées chaque année en France</div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">2 / 9</div>
+  </section>
+
+  <!-- ── 3. SOLUTION ── -->
+  <section class="slide slide-solution" data-index="2">
+    <div class="slide-content two-col">
+      <div>
+        <span class="tag">La solution</span>
+        <h2>Simuler pour <span class="highlight-green">sensibiliser</span></h2>
+        <div class="divider" style="background: var(--green)"></div>
+        <ul class="feature-list">
+          <li>Simulation de conduite réaliste sur route en temps réel</li>
+          <li>Interruptions par des notifications mobiles authentiques (SMS, appels, alertes)</li>
+          <li>Temps de réaction limité : 2,5 secondes pour réagir</li>
+          <li>Contacts familiaux fictifs pour renforcer l'immersion émotionnelle</li>
+          <li>Trois niveaux de difficulté progressifs</li>
+          <li>Score personnel et classement pour encourager l'amélioration</li>
+        </ul>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
+        <div class="phone-mockup">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="phone-notification">
+              <div class="notif-header">📱 Maman</div>
+              <div class="notif-body">Tu rentres à quelle heure ? 🍽️</div>
+            </div>
+            <div class="phone-notification" style="background: rgba(255,112,67,.12); border-color: rgba(255,112,67,.4);">
+              <div class="notif-header" style="color: var(--accent)">📞 Papa</div>
+              <div class="notif-body">Appel entrant…</div>
+            </div>
+            <div class="phone-notification" style="background: rgba(30,136,229,.1); border-color: rgba(30,136,229,.4); margin-top: 4px;">
+              <div class="notif-header" style="color: var(--blue)">🔋 Système</div>
+              <div class="notif-body">Batterie faible — 8 %</div>
+            </div>
+          </div>
+        </div>
+        <p style="font-size:12px; color: var(--muted); text-align:center">Exemple de distractions<br>pendant la conduite</p>
+      </div>
+    </div>
+    <div class="slide-number">3 / 9</div>
+  </section>
+
+  <!-- ── 4. FONCTIONNALITÉS ── -->
+  <section class="slide slide-features" data-index="3">
+    <div class="slide-content">
+      <span class="tag">Fonctionnalités</span>
+      <h2>Ce que propose <span class="highlight">le simulateur</span></h2>
+      <div class="divider"></div>
+      <div class="cards cards-3">
+        <div class="card">
+          <span class="card-icon">🛣️</span>
+          <h3>Moteur de jeu</h3>
+          <p>Route animée en Canvas avec véhicules adverses, physique de collision et contrôle du véhicule joueur en temps réel.</p>
+        </div>
+        <div class="card">
+          <span class="card-icon">📲</span>
+          <h3>Distractions réalistes</h3>
+          <p>SMS, appels entrants, notifications (batterie, musique, partage de position, rappels) générés dynamiquement.</p>
+        </div>
+        <div class="card">
+          <span class="card-icon">⏱️</span>
+          <h3>Chrono de réaction</h3>
+          <p>Minuterie circulaire de 2,5 s par distraction : ignorer ou répondre avant la fin — sinon, game over !</p>
+        </div>
+        <div class="card">
+          <span class="card-icon">🎯</span>
+          <h3>3 niveaux de difficulté</h3>
+          <p><strong>Classique</strong> · <strong>Avancé</strong> · <strong>Extrême</strong> — jusqu'à 100 % de distractions en cascade.</p>
+        </div>
+        <div class="card">
+          <span class="card-icon">👨‍👩‍👧‍👦</span>
+          <h3>Contacts immersifs</h3>
+          <p>5 membres de famille fictifs (Maman, Papa, Léa, Tom, Mamie) avec avatars et styles de messages distincts.</p>
+        </div>
+        <div class="card">
+          <span class="card-icon">🏆</span>
+          <h3>Score &amp; profil</h3>
+          <p>Sauvegarde du meilleur score par utilisateur, historique des parties et profil personnel.</p>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">4 / 9</div>
+  </section>
+
+  <!-- ── 5. GAMEPLAY ── -->
+  <section class="slide slide-gameplay" data-index="4">
+    <div class="slide-content">
+      <span class="tag">Expérience de jeu</span>
+      <h2>Un parcours <span class="highlight">en 4 étapes</span></h2>
+      <div class="divider"></div>
+      <div class="cards cards-4">
+        <div class="card" style="border-color: rgba(229,57,53,.3)">
+          <span class="card-icon">1️⃣</span>
+          <h3>Inscription</h3>
+          <p>Création de compte rapide avec nom d'utilisateur et mot de passe sécurisé.</p>
+        </div>
+        <div class="card" style="border-color: rgba(255,152,0,.3)">
+          <span class="card-icon">2️⃣</span>
+          <h3>Choix du mode</h3>
+          <p>Sélection du niveau de difficulté avant de démarrer la partie.</p>
+        </div>
+        <div class="card" style="border-color: rgba(30,136,229,.3)">
+          <span class="card-icon">3️⃣</span>
+          <h3>Conduite</h3>
+          <p>Rester sur la route, éviter les voitures et gérer les distractions mobiles en temps réel.</p>
+        </div>
+        <div class="card" style="border-color: rgba(67,160,71,.3)">
+          <span class="card-icon">4️⃣</span>
+          <h3>Résultat</h3>
+          <p>Score enregistré, comparaison avec le meilleur score personnel et incitation à rejouer.</p>
+        </div>
+      </div>
+      <div style="margin-top: 28px; padding: 20px 28px; background: rgba(229,57,53,0.06); border: 1px solid rgba(229,57,53,0.2); border-radius: 12px;">
+        <p style="font-size: 15px; color: var(--muted); line-height: 1.7;">
+          <strong style="color:var(--text)">Message clé transmis :</strong> même une seconde de distraction peut être fatale. Le joueur le ressent en jeu avant de le vivre sur la route.
+        </p>
+      </div>
+    </div>
+    <div class="slide-number">5 / 9</div>
+  </section>
+
+  <!-- ── 6. TECH STACK ── -->
+  <section class="slide slide-tech" data-index="5">
+    <div class="slide-content">
+      <span class="tag">Stack technique</span>
+      <h2>Technologies <span class="highlight-blue">modernes</span> et robustes</h2>
+      <div class="divider" style="background: var(--blue)"></div>
+      <div class="cards cards-2" style="gap: 28px;">
+        <div class="card">
+          <h3>🖥️ Frontend</h3>
+          <div class="tech-list">
+            <span class="badge badge-angular">Angular 21</span>
+            <span class="badge badge-ts">TypeScript</span>
+            <span class="badge badge-material">Angular Material</span>
+            <span class="badge badge-rxjs">RxJS 7</span>
+            <span class="badge badge-canvas">Canvas API</span>
+            <span class="badge badge-vitest">Vitest</span>
+          </div>
+          <p style="margin-top: 16px; font-size:13px; color:var(--muted)">Composants standalone · Signals · OnPush · Lazy routes · SCSS</p>
+        </div>
+        <div class="card">
+          <h3>⚙️ Backend</h3>
+          <div class="tech-list">
+            <span class="badge badge-spring">Spring Boot 4</span>
+            <span class="badge badge-java">Java 21</span>
+            <span class="badge badge-mysql">MySQL</span>
+            <span class="badge badge-jwt">JWT / OAuth2</span>
+          </div>
+          <p style="margin-top: 16px; font-size:13px; color:var(--muted)">Spring Security · Spring Data JPA · Hibernate · Maven · REST API</p>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">6 / 9</div>
+  </section>
+
+  <!-- ── 7. ARCHITECTURE ── -->
+  <section class="slide slide-archi" data-index="6">
+    <div class="slide-content">
+      <span class="tag">Architecture</span>
+      <h2>Une architecture <span class="highlight-orange">claire</span> et découplée</h2>
+      <div class="divider" style="background: var(--accent)"></div>
+      <div class="archi-diagram">
+        <div class="archi-box fe">
+          <div class="box-icon">🌐</div>
+          <div class="box-title">Frontend SPA</div>
+          <div class="box-sub">Angular 21<br>Port 4200</div>
+        </div>
+        <div class="archi-arrow">⇄</div>
+        <div class="archi-box be">
+          <div class="box-icon">⚙️</div>
+          <div class="box-title">REST API</div>
+          <div class="box-sub">Spring Boot<br>Port 8080</div>
+        </div>
+        <div class="archi-arrow">⇄</div>
+        <div class="archi-box db">
+          <div class="box-icon">🗄️</div>
+          <div class="box-title">Base de données</div>
+          <div class="box-sub">MySQL<br>simBDD</div>
+        </div>
+      </div>
+      <div class="cards cards-3" style="margin-top: 24px;">
+        <div class="card" style="padding: 18px 20px;">
+          <h3 style="font-size:15px">🔐 Sécurité</h3>
+          <p>JWT Bearer tokens · 1h expiration · Spring Security · CORS configuré · mots de passe hashés</p>
+        </div>
+        <div class="card" style="padding: 18px 20px;">
+          <h3 style="font-size:15px">📡 Endpoints API</h3>
+          <p><code style="color:var(--accent)">POST /auth/register</code><br><code style="color:var(--accent)">POST /auth/login</code><br><code style="color:var(--accent)">GET /me</code> · <code style="color:var(--accent)">POST /score</code></p>
+        </div>
+        <div class="card" style="padding: 18px 20px;">
+          <h3 style="font-size:15px">🧩 Modularité</h3>
+          <p>Composants réutilisables · Services injectables · Intercepteurs HTTP · Guards de routes</p>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">7 / 9</div>
+  </section>
+
+  <!-- ── 8. IMPACT / USAGES ── -->
+  <section class="slide slide-impact" data-index="7">
+    <div class="slide-content">
+      <span class="tag">Cas d'usage &amp; impact</span>
+      <h2>Qui peut <span class="highlight-green">bénéficier</span> de cet outil ?</h2>
+      <div class="divider" style="background: var(--green)"></div>
+      <div class="cards cards-3">
+        <div class="card" style="border-color: rgba(67,160,71,.3)">
+          <span class="card-icon">🏫</span>
+          <h3>Formations &amp; écoles</h3>
+          <p>Outil pédagogique pour les auto-écoles, lycées et formations à la sécurité routière.</p>
+        </div>
+        <div class="card" style="border-color: rgba(67,160,71,.3)">
+          <span class="card-icon">🏢</span>
+          <h3>Entreprises</h3>
+          <p>Sensibilisation des collaborateurs à la sécurité routière dans le cadre du DUER et des plans de prévention.</p>
+        </div>
+        <div class="card" style="border-color: rgba(67,160,71,.3)">
+          <span class="card-icon">📣</span>
+          <h3>Campagnes de prévention</h3>
+          <p>Stand interactif pour événements grand public, journées de prévention ou salons professionnels.</p>
+        </div>
+      </div>
+      <div style="margin-top: 28px; display:flex; gap:20px; flex-wrap:wrap;">
+        <div style="flex:1; min-width:200px; padding:16px 20px; background:rgba(67,160,71,.07); border:1px solid rgba(67,160,71,.25); border-radius:12px;">
+          <strong style="color:var(--green)">✅ Points forts</strong>
+          <ul style="margin-top:10px; padding-left:18px; font-size:14px; color:var(--muted); line-height:1.8;">
+            <li>Gratuit &amp; accessible depuis un navigateur</li>
+            <li>Pas d'installation requise</li>
+            <li>Immersion émotionnelle via contacts familiaux</li>
+            <li>Mesure objective de la réaction</li>
+          </ul>
+        </div>
+        <div style="flex:1; min-width:200px; padding:16px 20px; background:rgba(30,136,229,.07); border:1px solid rgba(30,136,229,.25); border-radius:12px;">
+          <strong style="color:var(--blue)">🔭 Évolutions possibles</strong>
+          <ul style="margin-top:10px; padding-left:18px; font-size:14px; color:var(--muted); line-height:1.8;">
+            <li>Classement global entre utilisateurs</li>
+            <li>Mode multijoueur</li>
+            <li>Statistiques analytiques</li>
+            <li>Version mobile native</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">8 / 9</div>
+  </section>
+
+  <!-- ── 9. FIN ── -->
+  <section class="slide slide-end" data-index="8">
+    <div class="slide-content" style="text-align:center; align-items:center; display:flex; flex-direction:column;">
+      <span class="hero-logo">🚗💥📱</span>
+      <span class="tag">Merci</span>
+      <h1 class="hero-title" style="font-size: clamp(40px,5vw,64px);">Des <span class="highlight">questions</span> ?</h1>
+      <p class="hero-sub" style="text-align:center">
+        Simulateur — sensibiliser par l'expérience,<br>parce qu'on retient mieux ce qu'on a vécu.
+      </p>
+      <div style="margin-top:40px; display:flex; gap:24px; flex-wrap:wrap; justify-content:center;">
+        <div style="padding:14px 24px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); border-radius:12px; font-size:14px; color:var(--muted);">
+          <strong style="color:var(--text); display:block; margin-bottom:4px;">Frontend</strong>
+          Angular 21 · TypeScript · Canvas
+        </div>
+        <div style="padding:14px 24px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); border-radius:12px; font-size:14px; color:var(--muted);">
+          <strong style="color:var(--text); display:block; margin-bottom:4px;">Backend</strong>
+          Spring Boot 4 · Java 21 · MySQL
+        </div>
+        <div style="padding:14px 24px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); border-radius:12px; font-size:14px; color:var(--muted);">
+          <strong style="color:var(--text); display:block; margin-bottom:4px;">Auteur</strong>
+          julien.pelissier@zenika.com
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">9 / 9</div>
+  </section>
+
+</div>
+
+<!-- ── Navigation ── -->
+<div id="nav">
+  <button class="nav-btn" id="prev" title="Précédent">‹</button>
+  <div class="nav-dots" id="dots"></div>
+  <button class="nav-btn" id="next" title="Suivant">›</button>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const dotsContainer = document.getElementById('dots');
+  const progress = document.getElementById('progress');
+  let current = 0;
+
+  // Build dots
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', () => goTo(i));
+    dotsContainer.appendChild(d);
+  });
+
+  function goTo(n) {
+    if (n < 0 || n >= slides.length) return;
+    slides[current].classList.remove('active');
+    slides[current].classList.add('exit');
+    setTimeout(() => slides[current].classList.remove('exit'), 450);
+    current = n;
+    slides[current].classList.add('active');
+    document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === current));
+    progress.style.width = ((current + 1) / slides.length * 100) + '%';
+  }
+
+  document.getElementById('next').addEventListener('click', () => goTo(current + 1));
+  document.getElementById('prev').addEventListener('click', () => goTo(current - 1));
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); goTo(current + 1); }
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')                    { e.preventDefault(); goTo(current - 1); }
+  });
+
+  // Touch swipe
+  let tx = 0;
+  document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; });
+  document.addEventListener('touchend',   e => {
+    const dx = tx - e.changedTouches[0].clientX;
+    if (Math.abs(dx) > 50) dx > 0 ? goTo(current + 1) : goTo(current - 1);
+  });
+
+  // Init progress
+  progress.style.width = (1 / slides.length * 100) + '%';
+</script>
+
+</body>
+</html>
