@@ -1,15 +1,17 @@
 <section class="game-page">
 
-  <!-- Three.js 3D scene fills the entire view -->
-  <app-scene3d
+  <!-- Road + 3D scene fills the entire view -->
+  <app-road
     class="scene3d-host"
-    [speedKph]="speedKph()"
-    [isBraking]="keyDownPressed()"
-    [hasCrashed]="gameState() === 'crashed'"
-    [isPlaying]="isStarted()"
-    [oncomingProgress]="oncomingCarProgress()"
+    [running]="isStarted()"
     [roadBlur]="roadBlur()"
-  ></app-scene3d>
+    (distanceMeters)="distanceMeters.set($event)"
+    (speedKph)="speedKph.set($event)"
+    (brakingComplete)="onBrakingComplete()"
+    (crashed)="onCrashed($event)"
+    (avoidedCar)="onAvoided($event)"
+    (brakedNeedlessly)="onBrakedNeedlessly()"
+  ></app-road>
 
   <!-- Header HUD -->
   <app-header class="header-hud"></app-header>
@@ -202,18 +204,5 @@
     </div>
   }
 
-  <!-- Road physics engine (hidden, still ticking) -->
-  <div class="road-physics" aria-hidden="true">
-    <app-road
-      [running]="isStarted()"
-      (distanceMeters)="distanceMeters.set($event)"
-      (speedKph)="speedKph.set($event)"
-      (brakingComplete)="onBrakingComplete()"
-      (crashed)="onCrashed($event)"
-      (avoidedCar)="onAvoided($event)"
-      (brakedNeedlessly)="onBrakedNeedlessly()"
-      (oncomingCarProgress)="oncomingCarProgress.set($event)"
-    ></app-road>
-  </div>
 
 </section>

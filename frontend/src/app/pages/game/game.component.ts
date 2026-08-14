@@ -3,7 +3,6 @@ import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, injec
 import { HeaderComponent } from '../../components/header/header.component';
 import { PhoneComponent } from '../../components/phone/phone.component';
 import { RoadComponent } from '../../components/road/road.component';
-import { Scene3dComponent } from '../../components/scene3d/scene3d.component';
 import { AudioService } from '../../core/audio.service';
 import { AuthService } from '../../core/auth.service';
 import { ProfileService } from '../../core/profile.service';
@@ -12,7 +11,7 @@ type GameState = 'idle' | 'playing' | 'crashed' | 'avoided' | 'phone-timeout' | 
 
 @Component({
   selector: 'app-game',
-  imports: [DecimalPipe, HeaderComponent, PhoneComponent, RoadComponent, Scene3dComponent],
+  imports: [DecimalPipe, HeaderComponent, PhoneComponent, RoadComponent],
   templateUrl: './game.component.html',
   styleUrl: './game.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,7 +31,6 @@ export class GameComponent {
   protected readonly keyDownPressed = signal(false);
   protected readonly elapsedTimeMs = signal(0);
   protected readonly phoneResetCount = signal(0);
-  protected readonly oncomingCarProgress = signal(-1);
 
   protected readonly distractionsEnabled = signal(true);
   protected readonly notificationProfile = signal(0);
@@ -149,7 +147,6 @@ export class GameComponent {
     this.reactionTime.set(null);
     this.dualPhoneMode.set(false);
     this.phoneResetCount.update(c => c + 1);
-    this.oncomingCarProgress.set(-1);
     this.gameState.set('idle');
   }
 }

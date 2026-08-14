@@ -1,4 +1,6 @@
-<div class="road" [class.road-running]="running()" aria-label="Route de jeu simplifiee en noir et blanc">
+<canvas #scene3dCanvas class="scene3d-canvas" aria-hidden="true"></canvas>
+
+<div class="road" [class.road-running]="running()" aria-hidden="true" style="visibility: hidden; position: absolute; width: 200px; height: 200px; left: 0; top: 0;">
   <canvas #roadCanvas class="road-canvas" aria-hidden="true"></canvas>
 
   <div class="car" [class.car-indicator-on]="indicatorLit()" [class.car-brake-on]="brakeLightsLit()" aria-hidden="true">
