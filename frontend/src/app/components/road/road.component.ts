@@ -93,6 +93,8 @@ export class RoadComponent {
   readonly brakingComplete = output<void>();
   readonly avoidedCar = output<string | null>();
   readonly brakedNeedlessly = output<void>();
+  /** Normalized progress of the oncoming car: -1 = not spawned, 0–1 = approaching (1 = collision point). */
+  readonly oncomingCarProgress = output<number>();
   readonly indicatorLit = signal(false);
   readonly brakeLightsLit = signal(false);
   readonly gameOver = signal(false);
@@ -340,7 +342,10 @@ export class RoadComponent {
 
   private updateOncomingCar(deltaMs: number, playerDeltaPx: number): void {
     const oncoming = this.oncomingCarState;
-    if (!oncoming) return;
+    if (!oncoming) {
+      this.oncomingCarProgress.emit(-1);
+      return;
+    }
 
     // Start reaction timer when front bumper first enters the screen
     if (!this.oncomingVisible && oncoming.top + RoadComponent.carHeightPx > 0) {
@@ -393,6 +398,9 @@ export class RoadComponent {
       braking,
       ownTravelledPx: oncoming.ownTravelledPx + ownDelta,
     };
+
+    const progress = (newTop + RoadComponent.carHeightPx) / (playerTopPx + RoadComponent.carHeightPx);
+    this.oncomingCarProgress.emit(Math.max(0, Math.min(1, progress)));
   }
 
   // ── Canvas rendering ──────────────────────────────────────────────────────

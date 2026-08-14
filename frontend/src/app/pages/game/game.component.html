@@ -1,224 +1,219 @@
 <section class="game-page">
-  <app-header></app-header>
 
-  <main class="game-layout">
-    <div class="column column-left">
-      @if (dualPhoneMode()) {
-        <div class="phone-column">
-          <div class="distance-display distance-display--spacer" aria-hidden="true">
-            <div class="metric-readout">
-              <span class="distance-label">DISTANCE</span>
-              <span class="distance-value">0 m</span>
-            </div>
-            <div class="metric-readout">
-              <span class="distance-label">VITESSE</span>
-              <span class="distance-value">0 km/h</span>
-            </div>
-            <div class="metric-readout">
-              <span class="distance-label">TEMPS</span>
-              <span class="distance-value">00:00</span>
-            </div>
-          </div>
-          <app-phone
-            [gameRunning]="isStarted()"
-            [resetCount]="phoneResetCount()"
-            [distractionsEnabled]="distractionsEnabled()"
-            [notificationProfile]="0"
-            [mirrored]="true"
-            (gameOver)="onPhoneGameOver()"
-            (distractionTimerProgress)="leftPhoneProgress.set($event)"
-          ></app-phone>
+  <!-- Three.js 3D scene fills the entire view -->
+  <app-scene3d
+    class="scene3d-host"
+    [speedKph]="speedKph()"
+    [isBraking]="keyDownPressed()"
+    [hasCrashed]="gameState() === 'crashed'"
+    [isPlaying]="isStarted()"
+    [oncomingProgress]="oncomingCarProgress()"
+    [roadBlur]="roadBlur()"
+  ></app-scene3d>
+
+  <!-- Header HUD -->
+  <app-header class="header-hud"></app-header>
+
+  <!-- Metrics HUD (top-left, below header) -->
+  <div class="hud-metrics" aria-label="Indicateurs de conduite">
+    <div class="metric-chip">
+      <span class="metric-chip__label">DISTANCE</span>
+      <span class="metric-chip__value">{{ distanceMeters() | number: '1.0-0' }} m</span>
+    </div>
+    <div class="metric-chip">
+      <span class="metric-chip__label">VITESSE</span>
+      <span class="metric-chip__value">{{ speedKph() | number: '1.0-0' }} km/h</span>
+    </div>
+    <div class="metric-chip">
+      <span class="metric-chip__label">TEMPS</span>
+      <span class="metric-chip__value">{{ elapsedTimeFormatted() }}</span>
+    </div>
+  </div>
+
+  <!-- Config panel — only visible before game starts -->
+  @if (gameState() === 'idle') {
+    <div class="config-panel" role="region" aria-label="Configuration">
+
+      <div class="config-panel__todo">
+        <p class="config-panel__todo-text">Répondez à votre famille au volant — la famille avant TOUT</p>
+      </div>
+
+      <div class="config-panel__row">
+        <span class="cfg-label">Distractions</span>
+        <label class="toggle-switch">
+          <input
+            type="checkbox"
+            [checked]="distractionsEnabled()"
+            (change)="distractionsEnabled.set(!distractionsEnabled())"
+            aria-label="Activer les distractions"
+          />
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        </label>
+        <span class="cfg-state">{{ distractionsEnabled() ? 'Activées' : 'Désactivées' }}</span>
+      </div>
+
+      <div
+        class="config-panel__mode"
+        [class.config-panel__mode--disabled]="!distractionsEnabled()"
+      >
+        <div class="mode-labels">
+          <span class="mode-label mode-label--classic">Classic</span>
+          <span class="mode-label mode-label--danger">You better<br>not try</span>
         </div>
-      } @else {
-        <div class="controls-container">
+        <input
+          type="range"
+          min="0"
+          max="100"
+          [value]="notificationProfile() * 100"
+          [disabled]="!distractionsEnabled()"
+          (input)="onProfileChange($event)"
+          class="mode-range"
+          aria-label="Mode de jeu"
+        />
+        <span class="cfg-state">{{ profileLabel() }}</span>
+      </div>
 
-          <div class="todo-section">
-            <h2 class="todo-title">TODO :</h2>
-            <p class="todo-text">N'oubliez pas de répondre à votre famille au volant, la famille avant TOUT</p>
-          </div>                 
-
-          <div class="config-section">
-            <h2 class="config-title">Configuration :</h2>
-
-            <div class="distraction-toggle">
-              <span class="toggle-label">Distractions </span>
-              <label class="toggle-switch" [class.toggle-switch--disabled]="isStarted()">
-                <input
-                  type="checkbox"
-                  [checked]="distractionsEnabled()"
-                  [disabled]="isStarted()"
-                  (change)="distractionsEnabled.set(!distractionsEnabled())"
-                  aria-label="Activer les distractions"
-                />
-                <span class="toggle-track">
-                  <span class="toggle-thumb"></span>
-                </span>
-              </label>
-              <span class="toggle-state">{{ distractionsEnabled() ? 'Activées' : 'Désactivées' }}</span>
-            </div>
-  
-            <div
-              class="game-modes-section"
-              [class.game-modes-section--disabled]="isStarted() || !distractionsEnabled()"
-            >
-              <span class="toggle-label">Mode de jeu</span>
-              <div class="game-modes-labels">
-                <span class="game-mode-label game-mode-label--classic">Classic</span>
-                <span class="game-mode-label game-mode-label--danger">You better<br>not try</span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                [value]="notificationProfile() * 100"
-                [disabled]="isStarted() || !distractionsEnabled()"
-                (input)="onProfileChange($event)"
-                class="mode-range"
-                aria-label="Mode de jeu"
-              />
-              <span class="toggle-state">{{ profileLabel() }}</span>
-            </div>
-  
-            <div class="mute-section">
-              <span class="toggle-label">Son</span>
-              <button
-                type="button"
-                class="mute-btn"
-                (click)="audioService.toggleMute()"
-                [attr.aria-label]="audioService.muted() ? 'Activer le son' : 'Couper le son'"
-                [class.mute-btn--muted]="audioService.muted()"
-              >
-                @if (audioService.muted()) {
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
-                  </svg>
-                } @else {
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
-                  </svg>
-                }
-              </button>
-              <span class="toggle-state">{{ audioService.muted() ? 'Muet' : 'Activé' }}</span>
-            </div>
-          </div>
-
-
-           <h2 class="controls-title">Touches</h2>
-
-          <div class="controls-diagram" aria-label="Touches directionnelles">
-            <div class="keys-illustration" aria-hidden="true">
-              <div class="key key-up" [class.key-pressed]="keyUpPressed()">↑</div>
-              <div class="key-row">
-                <div class="key">←</div>
-                <div class="key key-down" [class.key-pressed]="keyDownPressed()">↓</div>
-                <div class="key">→</div>
-              </div>
-            </div>
-
-            <svg class="controls-annotations" viewBox="0 0 420 320" aria-hidden="true">
-              <polyline class="annotation-line" points="255,60 290,25 320,25"></polyline>
-              <polyline class="annotation-line" points="255,260 290,310 320,310"></polyline>
+      <div class="config-panel__row">
+        <span class="cfg-label">Son</span>
+        <button
+          type="button"
+          class="mute-btn"
+          (click)="audioService.toggleMute()"
+          [attr.aria-label]="audioService.muted() ? 'Activer le son' : 'Couper le son'"
+          [class.mute-btn--muted]="audioService.muted()"
+        >
+          @if (audioService.muted()) {
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
             </svg>
-
-            <span class="annotation-label annotation-label-top">avancer</span>
-            <span class="annotation-label annotation-label-bottom">freiner</span>
-          </div>
-          
-        </div>
-      }
-    </div>
-
-    <div class="column column-center">
-      @if (gameState() === 'idle') {
-        <div class="start-overlay">
-          <button
-            type="button"
-            class="start-button"
-            aria-label="Demarrer la partie"
-            (click)="startGame()"
-          >
-            START
-          </button>
-        </div>
-      }
-
-      @if (gameState() === 'avoided') {
-        <div class="result-overlay result-overlay--success" role="alertdialog" aria-modal="true" aria-label="Partie réussie">
-          <p class="result-title result-title--success">BRAVO</p>
-          <p class="result-message">Vous vous êtes arrêté à temps !!!</p>
-          @if (reactionTime(); as time) {
-            <p class="result-reaction">⏱ Temps de réaction : {{ time }}</p>
-          }
-          <button type="button" class="retry-button" aria-label="Rejouer" (click)="restartGame()">Rejouer</button>
-        </div>
-      }
-
-      @if (gameState() === 'crashed') {
-        <div class="result-overlay result-overlay--fail" role="alertdialog" aria-modal="true" aria-label="Collision">
-          <p class="result-title result-title--fail">PERDU</p>
-          @if (reactionTime(); as time) {
-            <p class="result-message">Temps de réaction : {{ time }}</p>
           } @else {
-            <p class="result-message">Vous n'avez pas réagi, mais votre famille est au courant</p>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+            </svg>
           }
-          <button type="button" class="retry-button" aria-label="Rejouer" (click)="restartGame()">Rejouer</button>
-        </div>
-      }
+        </button>
+        <span class="cfg-state">{{ audioService.muted() ? 'Muet' : 'Activé' }}</span>
+      </div>
 
-      @if (gameState() === 'phone-timeout') {
-        <div class="result-overlay result-overlay--fail" role="alertdialog" aria-modal="true" aria-label="Distraction non gérée">
-          <p class="result-title result-title--fail">PERDU</p>
-          <p class="result-message">Vous devez répondre à votre famille</p>
-          <button type="button" class="retry-button" aria-label="Rejouer" (click)="restartGame()">Rejouer</button>
+      <div class="config-panel__keys" aria-label="Touches directionnelles">
+        <div class="keys-row">
+          <div class="key key-up" [class.key--pressed]="keyUpPressed()">↑</div>
         </div>
-      }
-
-      @if (gameState() === 'braked-needlessly') {
-        <div class="result-overlay result-overlay--fail" role="alertdialog" aria-modal="true" aria-label="Freinage inutile">
-          <p class="result-title result-title--fail">PERDU</p>
-          <p class="result-message">Un freinage ?? Pourquoi ?</p>
-          <button type="button" class="retry-button" aria-label="Rejouer" (click)="restartGame()">Rejouer</button>
+        <div class="keys-row">
+          <div class="key">←</div>
+          <div class="key key-down" [class.key--pressed]="keyDownPressed()">↓</div>
+          <div class="key">→</div>
         </div>
-      }
-
-      <div class="road-wrapper" [style.filter]="roadFilter()">
-        <app-road
-          [running]="isStarted()"
-          (distanceMeters)="distanceMeters.set($event)"
-          (speedKph)="speedKph.set($event)"
-          (brakingComplete)="onBrakingComplete()"
-          (crashed)="onCrashed($event)"
-          (avoidedCar)="onAvoided($event)"
-          (brakedNeedlessly)="onBrakedNeedlessly()"
-        ></app-road>
+        <div class="keys-hint">
+          <span>↑ avancer</span>
+          <span>↓ freiner</span>
+        </div>
       </div>
     </div>
+  }
 
-    <div class="column column-right">
-      <div class="phone-column">
-        <div class="distance-display" aria-label="Indicateurs de conduite">
-          <div class="metric-readout">
-            <span class="distance-label">DISTANCE</span>
-            <span class="distance-value">{{ distanceMeters() | number: '1.0-0' }} m</span>
-          </div>
-          <div class="metric-readout">
-            <span class="distance-label">VITESSE</span>
-            <span class="distance-value">{{ speedKph() | number: '1.0-0' }} km/h</span>
-          </div>
-          <div class="metric-readout">
-            <span class="distance-label">TEMPS</span>
-            <span class="distance-value">{{ elapsedTimeFormatted() }}</span>
-          </div>
-        </div>
-        <app-phone
-          [gameRunning]="isStarted()"
-          [resetCount]="phoneResetCount()"
-          [distractionsEnabled]="distractionsEnabled()"
-          [notificationProfile]="dualPhoneMode() ? 0 : notificationProfile()"
-          (gameOver)="onPhoneGameOver()"
-          (distractionTimerProgress)="rightPhoneProgress.set($event)"
-        ></app-phone>
-      </div>
+  <!-- Phone overlay — right side, looks held in 3D hand -->
+  <!-- <div
+    class="phone-overlay"
+    [class.phone-overlay--dual]="dualPhoneMode()"
+  >
+    @if (dualPhoneMode()) {
+      <app-phone
+        class="phone-overlay__secondary"
+        [gameRunning]="isStarted()"
+        [resetCount]="phoneResetCount()"
+        [distractionsEnabled]="distractionsEnabled()"
+        [notificationProfile]="0"
+        [mirrored]="true"
+        (gameOver)="onPhoneGameOver()"
+        (distractionTimerProgress)="leftPhoneProgress.set($event)"
+      ></app-phone>
+    }
+
+    <app-phone
+      class="phone-overlay__primary"
+      [gameRunning]="isStarted()"
+      [resetCount]="phoneResetCount()"
+      [distractionsEnabled]="distractionsEnabled()"
+      [notificationProfile]="dualPhoneMode() ? 0 : notificationProfile()"
+      (gameOver)="onPhoneGameOver()"
+      (distractionTimerProgress)="rightPhoneProgress.set($event)"
+    ></app-phone>
+  </div> -->
+
+  <!-- Game state overlays -->
+  @if (gameState() === 'idle') {
+    <div class="game-overlay game-overlay--start">
+      <button
+        type="button"
+        class="start-button"
+        aria-label="Démarrer la partie"
+        (click)="startGame()"
+      >
+        START
+      </button>
     </div>
-  </main>
+  }
+
+  @if (gameState() === 'avoided') {
+    <div class="game-overlay game-overlay--result result--success" role="alertdialog" aria-modal="true" aria-label="Partie réussie">
+      <p class="result-title result-title--success">BRAVO</p>
+      <p class="result-message">Vous vous êtes arrêté à temps !!!</p>
+      @if (reactionTime(); as time) {
+        <p class="result-reaction">⏱ Temps de réaction : {{ time }}</p>
+      }
+      <button type="button" class="retry-button" aria-label="Rejouer" (click)="restartGame()">Rejouer</button>
+    </div>
+  }
+
+  @if (gameState() === 'crashed') {
+    <div class="game-overlay game-overlay--result result--fail" role="alertdialog" aria-modal="true" aria-label="Collision">
+      <p class="result-title result-title--fail">PERDU</p>
+      @if (reactionTime(); as time) {
+        <p class="result-message">Temps de réaction : {{ time }}</p>
+      } @else {
+        <p class="result-message">Vous n'avez pas réagi, mais votre famille est au courant</p>
+      }
+      <button type="button" class="retry-button" aria-label="Rejouer" (click)="restartGame()">Rejouer</button>
+    </div>
+  }
+
+  @if (gameState() === 'phone-timeout') {
+    <div class="game-overlay game-overlay--result result--fail" role="alertdialog" aria-modal="true" aria-label="Distraction non gérée">
+      <p class="result-title result-title--fail">PERDU</p>
+      <p class="result-message">Vous devez répondre à votre famille</p>
+      <button type="button" class="retry-button" aria-label="Rejouer" (click)="restartGame()">Rejouer</button>
+    </div>
+  }
+
+  @if (gameState() === 'braked-needlessly') {
+    <div class="game-overlay game-overlay--result result--fail" role="alertdialog" aria-modal="true" aria-label="Freinage inutile">
+      <p class="result-title result-title--fail">PERDU</p>
+      <p class="result-message">Un freinage ?? Pourquoi ?</p>
+      <button type="button" class="retry-button" aria-label="Rejouer" (click)="restartGame()">Rejouer</button>
+    </div>
+  }
+
+  <!-- Key state display (bottom-center HUD during play) -->
+  @if (isStarted()) {
+    <div class="keys-hud" aria-hidden="true">
+      <div class="keys-hud__key" [class.keys-hud__key--active]="keyUpPressed()">↑</div>
+      <div class="keys-hud__key" [class.keys-hud__key--active]="keyDownPressed()">↓</div>
+    </div>
+  }
+
+  <!-- Road physics engine (hidden, still ticking) -->
+  <div class="road-physics" aria-hidden="true">
+    <app-road
+      [running]="isStarted()"
+      (distanceMeters)="distanceMeters.set($event)"
+      (speedKph)="speedKph.set($event)"
+      (brakingComplete)="onBrakingComplete()"
+      (crashed)="onCrashed($event)"
+      (avoidedCar)="onAvoided($event)"
+      (brakedNeedlessly)="onBrakedNeedlessly()"
+      (oncomingCarProgress)="oncomingCarProgress.set($event)"
+    ></app-road>
+  </div>
+
 </section>

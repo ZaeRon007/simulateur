@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, injec
 import { HeaderComponent } from '../../components/header/header.component';
 import { PhoneComponent } from '../../components/phone/phone.component';
 import { RoadComponent } from '../../components/road/road.component';
+import { Scene3dComponent } from '../../components/scene3d/scene3d.component';
 import { AudioService } from '../../core/audio.service';
 import { AuthService } from '../../core/auth.service';
 import { ProfileService } from '../../core/profile.service';
@@ -11,7 +12,7 @@ type GameState = 'idle' | 'playing' | 'crashed' | 'avoided' | 'phone-timeout' | 
 
 @Component({
   selector: 'app-game',
-  imports: [DecimalPipe, HeaderComponent, PhoneComponent, RoadComponent],
+  imports: [DecimalPipe, HeaderComponent, PhoneComponent, RoadComponent, Scene3dComponent],
   templateUrl: './game.component.html',
   styleUrl: './game.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -20,7 +21,7 @@ type GameState = 'idle' | 'playing' | 'crashed' | 'avoided' | 'phone-timeout' | 
     '(window:keyup.ArrowUp)': 'keyUpPressed.set(false)',
     '(window:keydown.ArrowDown)': 'keyDownPressed.set(true)',
     '(window:keyup.ArrowDown)': 'keyDownPressed.set(false)',
-  }
+  },
 })
 export class GameComponent {
   protected readonly gameState = signal<GameState>('idle');
@@ -31,6 +32,7 @@ export class GameComponent {
   protected readonly keyDownPressed = signal(false);
   protected readonly elapsedTimeMs = signal(0);
   protected readonly phoneResetCount = signal(0);
+  protected readonly oncomingCarProgress = signal(-1);
 
   protected readonly distractionsEnabled = signal(true);
   protected readonly notificationProfile = signal(0);
@@ -39,10 +41,11 @@ export class GameComponent {
 
   protected readonly leftPhoneProgress = signal(0);
   protected readonly rightPhoneProgress = signal(0);
-  protected readonly roadFilter = computed(() => {
+
+  protected readonly roadBlur = computed(() => {
     const progress = Math.max(this.leftPhoneProgress(), this.rightPhoneProgress());
     if (progress < 60) return '';
-    const blur = ((progress - 60) / 40) * 80;
+    const blur = ((progress - 60) / 40) * 60;
     return `blur(${blur.toFixed(1)}px)`;
   });
 
@@ -146,7 +149,7 @@ export class GameComponent {
     this.reactionTime.set(null);
     this.dualPhoneMode.set(false);
     this.phoneResetCount.update(c => c + 1);
+    this.oncomingCarProgress.set(-1);
     this.gameState.set('idle');
   }
 }
-
