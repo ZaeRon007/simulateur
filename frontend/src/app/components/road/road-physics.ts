@@ -175,8 +175,7 @@ export class RoadPhysics {
       ownTravelledPx: oncoming.ownTravelledPx + ownDelta,
     };
 
-    const progress =
-      (newTop + ROAD_CONSTANTS.carHeightPx) / (playerTopPx + ROAD_CONSTANTS.carHeightPx);
+    const progress = (newTop + ROAD_CONSTANTS.carHeightPx) / playerTopPx;
     this.state.currentOncomingProgress = Math.max(0, Math.min(1, progress));
     this.callbacks.onOncomingProgress(this.state.currentOncomingProgress);
   }
