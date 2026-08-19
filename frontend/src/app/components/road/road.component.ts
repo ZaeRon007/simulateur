@@ -211,8 +211,9 @@ export class RoadComponent {
         this.scene3d.init(canvas3d);
         this.scene3d.startLoop();
         this.scene3d.setupResize(canvas3d);
-        initFerrari(this.scene3d.scene, (ferrari, queue) => {
+        initFerrari(this.scene3d.scene, (ferrari, queue, oncoming) => {
           this.scene3d.setFerrariGroups(ferrari, queue);
+          this.scene3d.replaceOncomingCarWithFerrari(oncoming);
         });
       });
     });

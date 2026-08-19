@@ -9,7 +9,7 @@ import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
  */
 export function initFerrari(
   scene: THREE.Scene,
-  onLoaded: (ferrariGroup: THREE.Group, queueCarGroup: THREE.Group) => void,
+  onLoaded: (ferrariGroup: THREE.Group, queueCarGroup: THREE.Group, oncomingCarGroup: THREE.Group) => void,
 ): void {
   const draco = new DRACOLoader();
   draco.setDecoderPath('/draco/');
@@ -75,7 +75,14 @@ export function initFerrari(
       }
       scene.add(group);
 
-      onLoaded(playerCar, group);
+      // Oncoming car — Ferrari clone rotated 180° so its front faces the player
+      const oncomingCar = gltf.scene.clone(true);
+      oncomingCar.rotation.y = Math.PI;
+      setupCar(oncomingCar);
+      const oncomingGroup = new THREE.Group();
+      oncomingGroup.add(oncomingCar);
+
+      onLoaded(playerCar, group, oncomingGroup);
     },
     undefined,
     (error: unknown) => {

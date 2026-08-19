@@ -79,6 +79,16 @@ export class RoadThreeScene {
     this.queueCarGroup = queue;
   }
 
+  /** Swaps the placeholder box-car for the loaded Ferrari clone. */
+  replaceOncomingCarWithFerrari(group: THREE.Group): void {
+    group.visible = this.oncomingCarGroup.visible;
+    group.position.copy(this.oncomingCarGroup.position);
+    group.scale.copy(this.oncomingCarGroup.scale);
+    this.scene.remove(this.oncomingCarGroup);
+    this.oncomingCarGroup = group;
+    this.scene.add(this.oncomingCarGroup);
+  }
+
   /** Resets queue car positions (called on game reset). */
   resetQueueCars(): void {
     if (this.queueCarGroup) {

@@ -116,7 +116,7 @@ export class Road2dRenderer {
     const oncoming = this.getOncomingCarState();
     if (oncoming) {
       const oncomingCx = Math.round(w * 0.31);
-      this.drawCar(oncomingCx, oncoming.top, false, '#e8e0f0', true);
+      this.drawCar(oncomingCx, oncoming.top, false, '#cc1111', true);
     }
   }
 
