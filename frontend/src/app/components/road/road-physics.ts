@@ -61,7 +61,7 @@ export class RoadPhysics {
 
   spawnOncomingCar(laneHeight: number): void {
     this.oncomingCarState = {
-      top: -ROAD_CONSTANTS.carHeightPx,
+      top: -(laneHeight * ROAD_CONSTANTS.oncomingSpawnDistanceRatio),
       speedPxPerMs: ROAD_CONSTANTS.oncomingCarSpeedPxPerMs,
       braking: false,
       ownTravelledPx: 0,
@@ -114,8 +114,8 @@ export class RoadPhysics {
       return;
     }
 
-    // Start reaction timer when front bumper first enters the screen
-    if (!this.oncomingVisible && oncoming.top + ROAD_CONSTANTS.carHeightPx > 0) {
+    // Start reaction timer when car first spawns (already visible in 3D at Z=-80)
+    if (!this.oncomingVisible) {
       this.oncomingVisible = true;
       this.reactionStartMs = Date.now();
     }
@@ -175,7 +175,8 @@ export class RoadPhysics {
       ownTravelledPx: oncoming.ownTravelledPx + ownDelta,
     };
 
-    const progress = (newTop + ROAD_CONSTANTS.carHeightPx) / playerTopPx;
+    const spawnTop = -(this.getLaneHeight() * ROAD_CONSTANTS.oncomingSpawnDistanceRatio);
+    const progress = (newTop - spawnTop) / (playerTopPx - ROAD_CONSTANTS.carHeightPx - spawnTop);
     this.state.currentOncomingProgress = Math.max(0, Math.min(1, progress));
     this.callbacks.onOncomingProgress(this.state.currentOncomingProgress);
   }

@@ -26,6 +26,7 @@ const emergencyBrakingDecelMs2 = 8;
 const oncomingCarSpeedKph = 30;
 const oncomingCarSpeedPxPerMs = (oncomingCarSpeedKph / 3.6) / (metersPerPixel * 1000);
 const oncomingBrakeTravelRatio = 0.15;
+const oncomingSpawnDistanceRatio = 2.0;
 const dashOnPx = 12;
 const dashPatternPx = 24;
 const queueCarMinGapUnits = 6;
@@ -47,6 +48,7 @@ export const ROAD_CONSTANTS = {
   oncomingCarSpeedKph,
   oncomingCarSpeedPxPerMs,
   oncomingBrakeTravelRatio,
+  oncomingSpawnDistanceRatio,
   dashOnPx,
   dashPatternPx,
   queueCarMinGapUnits,
