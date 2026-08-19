@@ -138,43 +138,44 @@ export class RoadThreeScene {
 
   private buildEnvironment(): void {
     const tc = document.createElement('canvas');
-    tc.width = 512;
-    tc.height = 512;
+    tc.width = 1024;
+    tc.height = 1024;
     const ctx = tc.getContext('2d')!;
 
     ctx.fillStyle = '#3a3c3a';
-    ctx.fillRect(0, 0, 512, 512);
+    ctx.fillRect(0, 0, 1024, 1024);
 
     // Edge lines (solid white)
     ctx.fillStyle = '#e8e8e8';
-    ctx.fillRect(18, 0, 10, 512);
-    ctx.fillRect(484, 0, 10, 512);
+    ctx.fillRect(36, 0, 20, 1024);
+    ctx.fillRect(968, 0, 20, 1024);
 
     // Center double line (yellow)
     ctx.fillStyle = '#f0d040';
-    ctx.fillRect(248, 0, 8, 512);
-    ctx.fillRect(256, 0, 8, 512);
+    ctx.fillRect(496, 0, 16, 1024);
+    ctx.fillRect(512, 0, 16, 1024);
 
     // Lane dashes (white, dashed)
     ctx.fillStyle = 'rgba(220,220,220,0.7)';
-    for (let y = 0; y < 512; y += 72) {
-      ctx.fillRect(85, y, 8, 48);
-      ctx.fillRect(419, y, 8, 48);
+    for (let y = 0; y < 1024; y += 144) {
+      ctx.fillRect(170, y, 16, 96);
+      ctx.fillRect(838, y, 16, 96);
     }
 
     // Slight asphalt texture noise
     for (let i = 0; i < 300; i++) {
-      const nx = Math.random() * 512;
-      const ny = Math.random() * 512;
+      const nx = Math.random() * 1024;
+      const ny = Math.random() * 1024;
       const alpha = Math.random() * 0.06;
       ctx.fillStyle = `rgba(255,255,255,${alpha})`;
-      ctx.fillRect(nx, ny, 2, 2);
+      ctx.fillRect(nx, ny, 4, 4);
     }
 
     this.roadTexture = new THREE.CanvasTexture(tc);
     this.roadTexture.wrapS = THREE.RepeatWrapping;
     this.roadTexture.wrapT = THREE.RepeatWrapping;
     this.roadTexture.repeat.set(1, 25);
+    this.roadTexture.anisotropy = this.renderer.capabilities.getMaxAnisotropy();
 
     const roadMat = new THREE.MeshStandardMaterial({
       map: this.roadTexture,

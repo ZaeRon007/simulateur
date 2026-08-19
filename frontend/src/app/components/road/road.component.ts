@@ -186,8 +186,10 @@ export class RoadComponent {
         const h = canvas2d.clientHeight;
         if (!w || !h || (w === this.canvasWidth && h === this.canvasHeight)) return;
 
-        canvas2d.width = w;
-        canvas2d.height = h;
+        const dpr = window.devicePixelRatio || 1;
+        canvas2d.width = Math.round(w * dpr);
+        canvas2d.height = Math.round(h * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         this.canvasWidth = w;
         this.canvasHeight = h;
         this.shared.canvasWidth = w;
